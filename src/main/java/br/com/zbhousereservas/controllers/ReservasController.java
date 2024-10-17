@@ -19,13 +19,10 @@ public class ReservasController {
 
     @Autowired
     private ReservaService reservaService;
-    @Autowired
-    private PagamentosService pagamentosService;
 
     @Autowired
-    public ReservasController(ReservaService reservaService, PagamentosService pagamentosService) {
+    public ReservasController(ReservaService reservaService) {
         this.reservaService = reservaService;
-        this.pagamentosService = pagamentosService;
     }
 
     @PostMapping("/")
@@ -65,24 +62,6 @@ public class ReservasController {
         }
     }
 
-    @GetMapping("/recebidos")
-    public ResponseEntity<Object> somarRecebidos() {
-        try {
-            return ResponseEntity.ok().body(this.pagamentosService.somaRecebidos());
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/aReceber")
-    public ResponseEntity<Object> somarAReceber(){
-        try{
-            return ResponseEntity.ok().body(this.pagamentosService.somaAReceber());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
     @GetMapping("/datas")
     public ResponseEntity<Object> datasDisponiveis(){
