@@ -1,0 +1,97 @@
+package br.com.zbhousereservas.controllers;
+
+import br.com.zbhousereservas.dto.*;
+import br.com.zbhousereservas.entities.Reserva;
+import br.com.zbhousereservas.services.PagamentosService;
+import br.com.zbhousereservas.services.ReservaService;
+import jakarta.validation.Valid;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+@RestController
+@RequestMapping("/reservas")
+public class ReservasController {
+
+    @Autowired
+    private ReservaService reservaService;
+    @Autowired
+    private PagamentosService pagamentosService;
+
+    @Autowired
+    public ReservasController(ReservaService reservaService, PagamentosService pagamentosService) {
+        this.reservaService = reservaService;
+        this.pagamentosService = pagamentosService;
+    }
+
+    @PostMapping("/")
+    @Transactional
+    public ResponseEntity<Object> criarReserva(@Valid @RequestBody @NotNull Reserva reserva, UriComponentsBuilder uriComponentsBuilder) {
+
+        try {
+            var result = this.reservaService.salvarReserva(reserva);
+            var uri = uriComponentsBuilder.path("reservas/{id}").buildAndExpand(result.id()).toUri();
+            return ResponseEntity.created(uri).body(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> listarReservaPorId(@PathVariable Long id) {
+        try {
+            var result = this.reservaService.listarReservaPorId(id);
+            return ResponseEntity.ok().body(new ListarReservaDTO(result));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+
+
+    @GetMapping("/todos")
+    public ResponseEntity<Object> listarTodasReservas(Pageable pageable) {
+        try {
+
+            ListarReservaResponse response = this.reservaService.listarReservaResponse(pageable);
+
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/recebidos")
+    public ResponseEntity<Object> somarRecebidos() {
+        try {
+            return ResponseEntity.ok().body(this.pagamentosService.somaRecebidos());
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/aReceber")
+    public ResponseEntity<Object> somarAReceber(){
+        try{
+            return ResponseEntity.ok().body(this.pagamentosService.somaAReceber());
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/datas")
+    public ResponseEntity<Object> datasDisponiveis(){
+        try {
+            var result = this.reservaService.listarDatasDisponiveis();
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+}

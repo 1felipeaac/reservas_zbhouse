@@ -1,0 +1,68 @@
+package br.com.zbhousereservas.controllers;
+
+import br.com.zbhousereservas.dto.DetalhamentoPagamento;
+import br.com.zbhousereservas.dto.Parcelas;
+import br.com.zbhousereservas.services.PagamentosService;
+import br.com.zbhousereservas.services.ReservaService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+@RestController
+@RequestMapping("/pagamentos")
+public class PagamentosController {
+
+    @Autowired
+    private PagamentosService pagamentosService;
+    @Autowired
+    private ReservaService reservaService;
+
+    @Autowired
+    public PagamentosController(PagamentosService pagamentosService, ReservaService reservaService){
+        this.pagamentosService = pagamentosService;
+        this.reservaService = reservaService;
+    }
+
+
+    @GetMapping("/reserva/{id}")
+    public ResponseEntity<Object> buscarPagamentosPorReserva(@PathVariable Long id) {
+
+        try {
+            var result = this.pagamentosService.buscaPagamentoPorReservaList(id).stream().map(Parcelas::new).toList();
+            return ResponseEntity.ok().body(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> detalharPagamento(@PathVariable Long id) {
+
+        try {
+            var result = this.pagamentosService.buscarPagamento(id);
+            var nome = this.reservaService.listarReservaPorId(result.getReservaId()).getNome();
+            return ResponseEntity.ok().body(new DetalhamentoPagamento(new Parcelas(result), nome));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+
+    @PostMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Object> pagarParcela(@Valid @PathVariable Long id, @RequestBody Double valor, UriComponentsBuilder uriComponentsBuilder) {
+        try {
+            var result = this.pagamentosService.inserirPagamento(id, valor);
+            var uri = uriComponentsBuilder.path("pagamentos/{id}").buildAndExpand(result.getReservaId()).toUri();
+            return ResponseEntity.created(uri).body(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+}

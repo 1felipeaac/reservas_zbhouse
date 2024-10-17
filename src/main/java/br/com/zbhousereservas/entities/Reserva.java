@@ -1,0 +1,41 @@
+package br.com.zbhousereservas.entities;
+
+import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+@Entity(name = "reservas")
+public class Reserva {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @NotBlank(message = "O nome do responsável deve ser informado")
+    private String nome;
+    @NotBlank(message = "O documento de identificação deve ser informado")
+    private String documento;
+    private Double valor_reserva;
+    @NotNull(message = "A data de entrada deve ser informada")
+    private LocalDateTime checkin;
+    @NotNull(message = "A data de saída deve ser informada")
+    private LocalDateTime checkout;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "reservaId")
+    @NotNull(message = "Necessário pagar ao menos uma parcela para realizar a reserva")
+    private List<Pagamento> pagamentos;
+    @CreationTimestamp
+    private LocalDateTime created_at;
+    @NotNull
+    @Min(value = 0, message = "O desconto deve ser no mínimo 0")
+    @Max(value = 100, message = "O desconto deve ser no máximo 100")
+    private double desconto;
+
+}
