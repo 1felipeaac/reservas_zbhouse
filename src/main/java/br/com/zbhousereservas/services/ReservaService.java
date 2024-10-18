@@ -6,6 +6,7 @@ import br.com.zbhousereservas.dto.ReservaDTO;
 import br.com.zbhousereservas.exceptions.*;
 import br.com.zbhousereservas.entities.Reserva;
 import br.com.zbhousereservas.repositories.ReservaRepository;
+import br.com.zbhousereservas.validations.ValidarPagamentos;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,8 @@ public class ReservaService {
 
     @Autowired
     private ReservaRepository reservaRepository;
+    @Autowired
+    private ValidarPagamentos validarPagamentos;
 
     @Value("${diaria.reserva.zbhouse}")
     private double diaria;
@@ -85,15 +88,16 @@ public class ReservaService {
 
     public boolean validarPrimeiraParcela(@NotNull Reserva reserva) {
         boolean primeiraParcela = true;
-        Double valorPagamento = reserva.getPagamentos().getFirst().getValor_pagamento();
+//        Double valorPagamento = reserva.getPagamentos().getFirst().getValor_pagamento();
+        validarPagamentos.validarPrimeiraParcela(reserva);
 
-        if (reserva.getPagamentos().getFirst().getData_pagamento().isAfter(reserva.getCheckin())) {
-            throw new PrimeiraParcelaMaiorQueCheckinException();
-        }
-
-        if (valorPagamento == null || valorPagamento <= 0) {
-            throw new ValorParcelaIncorretoException();
-        }
+//        if (reserva.getPagamentos().getFirst().getData_pagamento().isAfter(reserva.getCheckin())) {
+//            throw new PrimeiraParcelaMaiorQueCheckinException();
+//        }
+//
+//        if (valorPagamento == null || valorPagamento <= 0) {
+//            throw new ValorParcelaException("Valor da parcela não pode ser menor que 0 ou nulo!");
+//        }
 
         reserva.getPagamentos().getFirst().setParcela(1);
         return primeiraParcela;
@@ -103,7 +107,7 @@ public class ReservaService {
         int dias = intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout()).size();
         double valorReserva = dias * diaria * (1 - reserva.getDesconto() / 100);
         if (valorReserva < reserva.getPagamentos().getFirst().getValor_pagamento()) {
-            throw new ValorParcelaSuperiorAReservaException();
+            throw new ValorParcelaException("Valor da Parcela está superior ao valor da reserva");
         }
         reserva.setValor_reserva(valorReserva);
     }

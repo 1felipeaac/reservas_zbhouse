@@ -2,6 +2,7 @@ package br.com.zbhousereservas.controllers;
 
 import br.com.zbhousereservas.dto.DetalhamentoPagamento;
 import br.com.zbhousereservas.dto.Parcelas;
+import br.com.zbhousereservas.dto.SegundaParcela;
 import br.com.zbhousereservas.services.PagamentosService;
 import br.com.zbhousereservas.services.ReservaService;
 import jakarta.validation.Valid;
@@ -56,11 +57,12 @@ public class PagamentosController {
 
     @PostMapping("/{id}")
     @Transactional
-    public ResponseEntity<Object> pagarParcela(@Valid @PathVariable Long id, @RequestBody Double valor, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Object> pagarParcela(@Valid @PathVariable Long id, @RequestBody SegundaParcela segundaParcela, UriComponentsBuilder uriComponentsBuilder) {
         try {
-            var result = this.pagamentosService.inserirPagamento(id, valor);
+            var result = this.pagamentosService.inserirPagamento(id, segundaParcela.valor());
+            var nome = this.reservaService.listarReservaPorId(result.getReservaId()).getNome();
             var uri = uriComponentsBuilder.path("pagamentos/{id}").buildAndExpand(result.getReservaId()).toUri();
-            return ResponseEntity.created(uri).body(result);
+            return ResponseEntity.created(uri).body(new DetalhamentoPagamento(nome, new Parcelas(result)));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

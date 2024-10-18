@@ -6,13 +6,9 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.client.HttpStatusCodeException;
-
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +27,7 @@ public class ExceptionHandlerControllerAdvice {
         e.getBindingResult().getFieldErrors().forEach(err -> {
 
             String message = messageSource.getMessage(err, LocaleContextHolder.getLocale());
-            dto.add(new ErrorMessageDTO(message, err.getField()));
+            dto.add(new ErrorMessageDTO(err.getField(), message));
         });
 
         return new ResponseEntity<>(dto, HttpStatus.BAD_REQUEST);
@@ -40,18 +36,15 @@ public class ExceptionHandlerControllerAdvice {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorMessageDTO> handlerHttpMessageNotReadableException(HttpMessageNotReadableException e) {
 
-        String errorMessage;
+
         try {
 
-            errorMessage = e.getMessage();
-
-            ErrorMessageDTO errorDto = new ErrorMessageDTO(null, errorMessage);
+            ErrorMessageDTO errorDto = new ErrorMessageDTO(null, "Falta informação no formulário!");
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto);
         } catch (Exception ex) {
             ex.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessageDTO(null, "Erro ao processar a mensagem JSON"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessageDTO("Erro ao processar a mensagem JSON", null));
         }
     }
-
 }

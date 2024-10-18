@@ -5,6 +5,7 @@ import br.com.zbhousereservas.entities.Pagamento;
 import br.com.zbhousereservas.entities.Reserva;
 import br.com.zbhousereservas.repositories.PagamentosRepository;
 import br.com.zbhousereservas.repositories.ReservaRepository;
+import br.com.zbhousereservas.validations.ValidarPagamentos;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class PagamentosService {
     private ReservaRepository reservaRepository;
     @Autowired
     private ReservaService reservaService;
+    @Autowired
+    private ValidarPagamentos validarPagamentos;
 
     public List<Pagamento> buscaPagamentoPorReservaList(Long reservaId) {
 
@@ -41,31 +44,22 @@ public class PagamentosService {
         return this.pagamentosRepository.findFirstByReservaId(reservaId).orElseThrow(ReservaNaoExistenteException::new);
     }
 
-    public Pagamento inserirPagamento(Long reservaId, Double valor) {
+    public Pagamento inserirPagamento(Long reservaId, double valor) {
 
         Pagamento pagParcela;
 
-        Pagamento reserva = buscaPagamentoPorReservaDistinct(reservaId);
+        Pagamento pagamentoDaReserva = buscaPagamentoPorReservaDistinct(reservaId);
 
-        if (reserva != null) {
-            Reserva res = this.reservaRepository.findById(reservaId).orElseThrow();
-            double aReceber = reserva.getValor_pagamento() + valor;
+        if (pagamentoDaReserva != null) {
+            Reserva reserva = this.reservaRepository.findById(reservaId).orElseThrow();
+            double valorAReceber = pagamentoDaReserva.getValor_pagamento() + valor;
             pagParcela = new Pagamento();
-            pagParcela.setParcela(reserva.getParcela() + 1);
+            pagParcela.setParcela(pagamentoDaReserva.getParcela() + 1);
             pagParcela.setReservaId(reservaId);
             pagParcela.setData_pagamento(LocalDateTime.now());
 
-            if (res.getPagamentos().toArray().length >= 2) {
-                throw new MaisDeDuasParcelasException();
-            }
+            validarPagamentos.validarPagamento(valorAReceber, reserva);
 
-            if (aReceber < res.getValor_reserva()) {
-                double diferenca = res.getValor_reserva() - res.getPagamentos().getFirst().getValor_pagamento();
-                throw new ValorParcelaInsificienteException(diferenca);
-            }
-            if (aReceber > res.getValor_reserva()) {
-                throw new ValorPagoUltrapassaValorDaReservaException();
-            }
             pagParcela.setValor_pagamento(valor);
 
             try {

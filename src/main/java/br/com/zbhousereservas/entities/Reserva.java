@@ -1,5 +1,6 @@
 package br.com.zbhousereservas.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -26,8 +27,12 @@ public class Reserva {
     private String documento;
     private Double valor_reserva;
     @NotNull(message = "A data de entrada deve ser informada")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+//    @Future
     private LocalDateTime checkin;
     @NotNull(message = "A data de saída deve ser informada")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+//    @Future
     private LocalDateTime checkout;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "reservaId")

@@ -1,7 +1,5 @@
 package br.com.zbhousereservas.dto;
 
-import br.com.zbhousereservas.entities.Pagamento;
-import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 
