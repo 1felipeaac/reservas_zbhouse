@@ -8,11 +8,8 @@ import java.util.Optional;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
-    Optional<Reserva> findByDocumentoAndCheckin(String documento, LocalDateTime checkin);
-
     Optional<Reserva> findByCheckin(LocalDateTime checkin);
     Optional<Reserva> findByCheckout(LocalDateTime checkout);
-    Optional<Reserva> findByCheckinOrCheckout(LocalDateTime checkin, LocalDateTime checkout);
 
 
 }

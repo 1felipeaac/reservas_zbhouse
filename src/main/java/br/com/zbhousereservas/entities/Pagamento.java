@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 
 import java.time.LocalDateTime;
@@ -25,5 +27,4 @@ public class Pagamento {
     @NotNull(message = "Valor do pagamento deve ser informado")
     private Double valor_pagamento;
     private Long reservaId;
-
 }

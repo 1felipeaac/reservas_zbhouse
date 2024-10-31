@@ -9,5 +9,6 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=zbhousereservas
+      - JWT_SECRET=$2a$12$T9eh.Pmc1uWavsJSpCNk/ur9guZXz2zRknGWyHsgisqJfNUq8ZTsa
     volumes:
       - C:\Users\felip\Documents\Projetos\ZB House - Reservas\zbhousereservas\database:/var/lib/postgresql/data

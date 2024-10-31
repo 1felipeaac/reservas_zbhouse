@@ -5,7 +5,7 @@ import br.com.zbhousereservas.entities.Pagamento;
 import br.com.zbhousereservas.entities.Reserva;
 import br.com.zbhousereservas.repositories.PagamentosRepository;
 import br.com.zbhousereservas.repositories.ReservaRepository;
-import br.com.zbhousereservas.validations.ValidarPagamentos;
+import br.com.zbhousereservas.validations.ValidarObjetos;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +26,13 @@ public class PagamentosService {
     @Autowired
     private ReservaService reservaService;
     @Autowired
-    private ValidarPagamentos validarPagamentos;
+    private ValidarObjetos validarObjetos;
 
     public List<Pagamento> buscaPagamentoPorReservaList(Long reservaId) {
 
         var pagamento = this.pagamentosRepository.findByReservaId(reservaId).orElseThrow(ReservaNaoExistenteException::new);
 
-        if (pagamento.isEmpty()){
+        if (pagamento.isEmpty()) {
             throw new ReservaNaoExistenteException();
         }
 
@@ -50,29 +50,23 @@ public class PagamentosService {
 
         Pagamento pagamentoDaReserva = buscaPagamentoPorReservaDistinct(reservaId);
 
-        if (pagamentoDaReserva != null) {
-            Reserva reserva = this.reservaRepository.findById(reservaId).orElseThrow();
-            double valorAReceber = pagamentoDaReserva.getValor_pagamento() + valor;
-            pagParcela = new Pagamento();
-            pagParcela.setParcela(pagamentoDaReserva.getParcela() + 1);
-            pagParcela.setReservaId(reservaId);
-            pagParcela.setData_pagamento(LocalDateTime.now());
+        double valorAReceber = pagamentoDaReserva.getValor_pagamento() + valor;
+        pagParcela = new Pagamento();
+        pagParcela.setParcela(pagamentoDaReserva.getParcela() + 1);
+        pagParcela.setReservaId(reservaId);
+        pagParcela.setData_pagamento(LocalDateTime.now());
+        pagParcela.setValor_pagamento(valor);
 
-            validarPagamentos.validarPagamento(valorAReceber, reserva);
-
-            pagParcela.setValor_pagamento(valor);
-
-            try {
-                return this.pagamentosRepository.save(pagParcela);
-            } catch (Exception e) {
-                throw new ErroAoSalvarException();
-            }
+        validarObjetos.validarPagamento(valorAReceber, reservaId);
+        try {
+            return this.pagamentosRepository.save(pagParcela);
+        } catch (Exception e) {
+            throw new ErroAoSalvarException();
         }
-        throw new ReservaNaoExistenteException();
+
     }
 
-    public double somaRecebidos() {
-
+    public Double somaRecebidos() {
         List<Double> pagamentos = new ArrayList<>();
         this.pagamentosRepository.findAll().forEach(pagamento -> pagamentos.add(pagamento.getValor_pagamento()));
         return pagamentos.stream()
@@ -80,7 +74,7 @@ public class PagamentosService {
                 .sum();
     }
 
-    public double somaAReceber() {
+    public Double somaAReceber() {
         List<Double> aReceber = new ArrayList<>();
 
         this.pagamentosRepository.findAll().forEach(pagamento -> {
