@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    container_name: zbhousereservas_postgres
+    container_name: zbhousereservas_database
     image: postgres
     ports:
       - 5432:5432
@@ -11,3 +11,14 @@ services:
       - POSTGRES_DB=zbhousereservas
     volumes:
       - C:\Users\felip\Documents\Projetos\ZB House - Reservas\zbhousereservas\database:/var/lib/postgresql/data
+  zbhouse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: teste/zbhouse
+    ports:
+      - 8089:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/zbhousereservas
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
