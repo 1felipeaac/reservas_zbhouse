@@ -6,7 +6,7 @@ import br.com.zbhousereservas.dto.ReservaDTO;
 import br.com.zbhousereservas.exceptions.*;
 import br.com.zbhousereservas.entities.Reserva;
 import br.com.zbhousereservas.repositories.ReservaRepository;
-import br.com.zbhousereservas.validations.ValidarPagamentos;
+import br.com.zbhousereservas.validations.ValidarObjetos;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -31,46 +31,16 @@ public class ReservaService {
     @Autowired
     private ReservaRepository reservaRepository;
     @Autowired
-    private ValidarPagamentos validarPagamentos;
+    private ValidarObjetos validarObjetos;
 
     @Value("${diaria.reserva.zbhouse}")
     private double diaria;
 
-    public static @NotNull ArrayList<LocalDateTime> intervaloCheckinChekout(LocalDateTime checkin, LocalDateTime checkout) {
-        ArrayList<LocalDateTime> datas = new ArrayList<>();
-
-        LocalDateTime dataAtual = checkin;
-
-        while (!dataAtual.isAfter(checkout)) {
-            datas.add(dataAtual);
-            dataAtual = dataAtual.plusDays(1);
-        }
-
-        return datas;
-    }
-
-    public boolean validarDatas(LocalDateTime checkin, LocalDateTime checkout) {
-        boolean novaReserva = true;
-
-        for (LocalDateTime dia : intervaloCheckinChekout(checkin, checkout)) {
-
-            boolean checkinExiste = this.reservaRepository.findByCheckin(dia).isPresent();
-            boolean checkoutExiste = this.reservaRepository.findByCheckout(dia).isPresent();
-
-            if (checkinExiste || checkoutExiste) {
-                throw new ReservaExistenteException();
-            }
-
-        }
-        return novaReserva;
-    }
-
     public List<LocalDateTime> listarDatasDisponiveis() {
         List<LocalDateTime> datasDisponiveis = new ArrayList<>();
-
         Set<LocalDateTime> datasReservadas = new HashSet<>();
         this.reservaRepository.findAll().forEach(reserva -> {
-            for (LocalDateTime dia : intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout())) {
+            for (LocalDateTime dia : validarObjetos.intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout())) {
                 datasReservadas.add(dia.toLocalDate().atStartOfDay());
             }
         });
@@ -85,45 +55,17 @@ public class ReservaService {
 
         return datasDisponiveis;
     }
-
-    public boolean validarPrimeiraParcela(@NotNull Reserva reserva) {
-        boolean primeiraParcela = true;
-//        Double valorPagamento = reserva.getPagamentos().getFirst().getValor_pagamento();
-        validarPagamentos.validarPrimeiraParcela(reserva);
-
-//        if (reserva.getPagamentos().getFirst().getData_pagamento().isAfter(reserva.getCheckin())) {
-//            throw new PrimeiraParcelaMaiorQueCheckinException();
-//        }
-//
-//        if (valorPagamento == null || valorPagamento <= 0) {
-//            throw new ValorParcelaException("Valor da parcela não pode ser menor que 0 ou nulo!");
-//        }
-
-        reserva.getPagamentos().getFirst().setParcela(1);
-        return primeiraParcela;
-    }
-
     public void valorReserva(@NotNull Reserva reserva) {
-        int dias = intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout()).size();
+        int dias = validarObjetos.intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout()).size();
         double valorReserva = dias * diaria * (1 - reserva.getDesconto() / 100);
-        if (valorReserva < reserva.getPagamentos().getFirst().getValor_pagamento()) {
-            throw new ValorParcelaException("Valor da Parcela está superior ao valor da reserva");
-        }
+        double valorParcela = reserva.getPagamentos().getFirst().getValor_pagamento();
+        ValidarObjetos.validarValorParcela(valorReserva, valorParcela);
         reserva.setValor_reserva(valorReserva);
     }
 
     public ReservaDTO salvarReserva(@NotNull Reserva reserva) {
-        if (reserva.getCheckin().isAfter(reserva.getCheckout())) {
-            throw new CheuckoutMenorQueCheckinException();
-        }
 
-        if (!validarDatas(reserva.getCheckin(), reserva.getCheckout())) {
-            throw new ReservaExistenteException();
-        }
-
-        if (!validarPrimeiraParcela(reserva)) {
-            throw new PrimeiraParcelaMaiorQueCheckinException();
-        }
+        validarObjetos.validarReserva(reserva);
 
         try {
             valorReserva(reserva);
@@ -142,7 +84,7 @@ public class ReservaService {
         return this.reservaRepository.findAll(pageable).map(ListarReservaDTO::new);
     }
 
-    public ListarReservaResponse listarReservaResponse (Pageable pageable){
+    public ListarReservaResponse listarReservaResponse(Pageable pageable) {
         Page<ListarReservaDTO> result = listarTodasReservas(pageable);
 
         ListarReservaResponse response = new ListarReservaResponse();
@@ -150,7 +92,7 @@ public class ReservaService {
         response.setContent(result.getContent());
         response.setTotalPages(result.getTotalPages());
         response.setTotalElements(result.getTotalElements());
-        return  response;
+        return response;
     }
 
 }

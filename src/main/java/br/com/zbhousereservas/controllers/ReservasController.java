@@ -2,8 +2,8 @@ package br.com.zbhousereservas.controllers;
 
 import br.com.zbhousereservas.dto.*;
 import br.com.zbhousereservas.entities.Reserva;
-import br.com.zbhousereservas.services.PagamentosService;
 import br.com.zbhousereservas.services.ReservaService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/reservas")
+@SecurityRequirement(name = "bearer-key")
 public class ReservasController {
 
     @Autowired
@@ -51,7 +54,7 @@ public class ReservasController {
 
 
     @GetMapping("/todos")
-    public ResponseEntity<Object> listarTodasReservas(Pageable pageable) {
+    public ResponseEntity<Object> listarTodasReservas(Pageable pageable, @RequestParam(required = false) List<String> sort) {
         try {
 
             ListarReservaResponse response = this.reservaService.listarReservaResponse(pageable);

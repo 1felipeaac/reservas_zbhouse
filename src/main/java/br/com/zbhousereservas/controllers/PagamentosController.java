@@ -3,8 +3,10 @@ package br.com.zbhousereservas.controllers;
 import br.com.zbhousereservas.dto.DetalhamentoPagamento;
 import br.com.zbhousereservas.dto.Parcelas;
 import br.com.zbhousereservas.dto.SegundaParcela;
+import br.com.zbhousereservas.dto.ValorDetalhado;
 import br.com.zbhousereservas.services.PagamentosService;
 import br.com.zbhousereservas.services.ReservaService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/pagamentos")
+@SecurityRequirement(name = "bearer-key")
 public class PagamentosController {
 
     @Autowired
@@ -71,7 +74,8 @@ public class PagamentosController {
     @GetMapping("/recebidos")
     public ResponseEntity<Object> somarRecebidos() {
         try {
-            return ResponseEntity.ok().body(this.pagamentosService.somaRecebidos());
+            Double somaRecebidos = this.pagamentosService.somaRecebidos();
+            return ResponseEntity.ok().body(new ValorDetalhado(somaRecebidos));
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -81,7 +85,8 @@ public class PagamentosController {
     @GetMapping("/aReceber")
     public ResponseEntity<Object> somarAReceber(){
         try{
-            return ResponseEntity.ok().body(this.pagamentosService.somaAReceber());
+            double somaAReceber = this.pagamentosService.somaAReceber();
+            return ResponseEntity.ok().body(new ValorDetalhado(somaAReceber));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

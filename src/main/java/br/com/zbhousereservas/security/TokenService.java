@@ -1,12 +1,14 @@
 package br.com.zbhousereservas.security;
 
 import br.com.zbhousereservas.entities.Usuario;
+import br.com.zbhousereservas.exceptions.TokenJWTValidaitonException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +20,10 @@ import java.util.Date;
 @Service
 public class TokenService {
 
-    @Value("${api.security.token.secret}")
+    @Value("${JWT_SECRET}")
     private String secret;
 
-    public String gearToken(Usuario usuario){
+    public String gerarToken(@NotNull Usuario usuario){
         try {
             var algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
@@ -31,12 +33,12 @@ public class TokenService {
                     .sign(algorithm);
         } catch (JWTCreationException exception){
             // Invalid Signing configuration / Couldn't convert Claims.
-            throw new RuntimeException("Erro ao gerar o token jmt", exception);
+            throw new RuntimeException("Erro ao gerar o token jwt", exception);
         }
     }
 
     public String getSubject(String tokenJWT){
-        DecodedJWT decodedJWT;
+
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)
@@ -48,7 +50,7 @@ public class TokenService {
                     .getSubject();
 
         } catch (JWTVerificationException exception){
-            throw new RuntimeException("Token JWT inválido ou expirado!");
+            throw new TokenJWTValidaitonException("Token JWT inválido ou expirado!");
         }
     }
 
