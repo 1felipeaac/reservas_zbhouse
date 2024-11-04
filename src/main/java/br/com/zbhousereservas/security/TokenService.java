@@ -26,6 +26,7 @@ public class TokenService {
     public String gerarToken(@NotNull Usuario usuario){
         try {
             var algorithm = Algorithm.HMAC256(secret);
+
             return JWT.create()
                     .withIssuer("API zbhousereservas")
                     .withSubject(usuario.getLogin())
