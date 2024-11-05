@@ -1,4 +1,6 @@
 package br.com.zbhousereservas.dto;
 
-public record SegundaParcela(double valor) {
+import java.time.LocalDateTime;
+
+public record SegundaParcela(double valor, LocalDateTime data) {
 }

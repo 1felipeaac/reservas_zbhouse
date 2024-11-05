@@ -62,9 +62,10 @@ public class PagamentosController {
     @Transactional
     public ResponseEntity<Object> pagarParcela(@Valid @PathVariable Long id, @RequestBody SegundaParcela segundaParcela, UriComponentsBuilder uriComponentsBuilder) {
         try {
-            var result = this.pagamentosService.inserirPagamento(id, segundaParcela.valor());
+            var result = this.pagamentosService.inserirPagamento(id, segundaParcela.valor(), segundaParcela.data());
             var nome = this.reservaService.listarReservaPorId(result.getReservaId()).getNome();
             var uri = uriComponentsBuilder.path("pagamentos/{id}").buildAndExpand(result.getReservaId()).toUri();
+//            System.out.println(uri);
             return ResponseEntity.created(uri).body(new DetalhamentoPagamento(nome, new Parcelas(result)));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

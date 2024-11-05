@@ -2,7 +2,6 @@ package br.com.zbhousereservas.controllers;
 
 import br.com.zbhousereservas.dto.DadosAutenticacao;
 import br.com.zbhousereservas.entities.Usuario;
-import br.com.zbhousereservas.security.DadosTokenJWT;
 import br.com.zbhousereservas.security.TokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,12 +34,18 @@ public class AutenticacaoController {
 
             var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
 
-            // Adicionando o token JWT como um cookie na resposta
-            Cookie cookie = new Cookie("token", tokenJWT);
-            cookie.setSecure(true); // Defina como `true` se estiver usando HTTPS
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(24 * 60 * 60); // Define a validade do cookie em segundos (neste caso, 1 dia)
-            response.addCookie(cookie);
+
+//            Cookie cookie = new Cookie("token", tokenJWT);
+//            cookie.setHttpOnly(true);
+//            cookie.setSecure(true);
+//            cookie.setPath("/");
+//            cookie.setSameSite("None");
+//            cookie.setMaxAge(24 * 60 * 60);
+//            response.addCookie(cookie);
+
+            String cookieValue = "token=" + tokenJWT + "; HttpOnly; Secure; SameSite=None; Domain=localhost; Path=/; Max-Age=" + (24 * 60 * 60);
+//            System.out.println(cookieValue);
+            response.addHeader("Set-Cookie", cookieValue);
 
             return ResponseEntity.ok(dados.login());
 
