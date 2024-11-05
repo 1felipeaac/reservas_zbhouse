@@ -44,7 +44,7 @@ public class PagamentosService {
         return this.pagamentosRepository.findFirstByReservaId(reservaId).orElseThrow(ReservaNaoExistenteException::new);
     }
 
-    public Pagamento inserirPagamento(Long reservaId, double valor) {
+    public Pagamento inserirPagamento(Long reservaId, double valor, LocalDateTime data) {
 
         Pagamento pagParcela;
 
@@ -54,7 +54,7 @@ public class PagamentosService {
         pagParcela = new Pagamento();
         pagParcela.setParcela(pagamentoDaReserva.getParcela() + 1);
         pagParcela.setReservaId(reservaId);
-        pagParcela.setData_pagamento(LocalDateTime.now());
+        pagParcela.setData_pagamento(data);
         pagParcela.setValor_pagamento(valor);
 
         validarObjetos.validarPagamento(valorAReceber, reservaId);

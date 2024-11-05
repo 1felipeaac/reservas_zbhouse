@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record Parcelas(int parcela,
-                       @JsonFormat(pattern = "dd-MM-yyyy'T'HH:mm:ss")LocalDateTime data_pagamento,
+                       @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm")LocalDateTime data_pagamento,
                        double valor_pagamento) {
 
 

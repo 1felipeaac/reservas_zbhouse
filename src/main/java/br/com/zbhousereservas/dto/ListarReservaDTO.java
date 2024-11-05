@@ -10,8 +10,8 @@ import java.util.List;
 
 public record ListarReservaDTO (Long id, String nome,
                                 String documento,
-                                @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime checkin,
-                                @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime checkout,
+                                @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm") LocalDateTime checkin,
+                                @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm") LocalDateTime checkout,
                                 Double valor_reserva,
                                 int desconto,
                                 List<Parcelas> pagamentos){
