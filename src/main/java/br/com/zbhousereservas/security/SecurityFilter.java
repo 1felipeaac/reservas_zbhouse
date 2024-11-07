@@ -2,6 +2,7 @@ package br.com.zbhousereservas.security;
 
 
 import br.com.zbhousereservas.repositories.UsuarioRepository;
+import br.com.zbhousereservas.utils.ImprimirRequest;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -41,29 +42,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private @Nullable String recuperarToken(HttpServletRequest request) {
 
-        System.out.println("Request Method: " + request.getMethod());
-        System.out.println("Request URI: " + request.getRequestURI());
-
-        // Imprimindo os cabeçalhos da requisição
-        Enumeration<String> headerNames = request.getHeaderNames();
-        if (headerNames != null) {
-            System.out.println("Request Headers:");
-            while (headerNames.hasMoreElements()) {
-                String headerName = headerNames.nextElement();
-                String headerValue = request.getHeader(headerName);
-                System.out.println(headerName + ": " + headerValue);
-            }
-        }
-
-//        var cookieHeader = request.getHeader("Cookie");
-//        if (cookieHeader != null){
-//            String[] cookies = cookieHeader.split("; ");
-//            for(String cookie: cookies){
-//                if(cookie.startsWith("token=")){
-//                    return cookie.substring(6);
-//                }
-//            }
-//        }
+//        ImprimirRequest.execute(request);
 
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {

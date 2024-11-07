@@ -39,6 +39,7 @@ public class SecurityConfigurations {
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(CorsFilterPersonal.class.newInstance(), UsernamePasswordAuthenticationFilter.class)
                 .build();
 
     }
@@ -53,14 +54,4 @@ public class SecurityConfigurations {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(List.of("*"));
-//        configuration.setAllowedMethods(List.of("*"));
-//        configuration.setAllowedHeaders(List.of("*"));
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
 }

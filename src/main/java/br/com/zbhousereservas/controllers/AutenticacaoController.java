@@ -34,17 +34,7 @@ public class AutenticacaoController {
 
             var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
 
-
-//            Cookie cookie = new Cookie("token", tokenJWT);
-//            cookie.setHttpOnly(true);
-//            cookie.setSecure(true);
-//            cookie.setPath("/");
-//            cookie.setSameSite("None");
-//            cookie.setMaxAge(24 * 60 * 60);
-//            response.addCookie(cookie);
-
             String cookieValue = "token=" + tokenJWT + "; HttpOnly; Secure; SameSite=None; Domain=localhost; Path=/; Max-Age=" + (24 * 60 * 60);
-//            System.out.println(cookieValue);
             response.addHeader("Set-Cookie", cookieValue);
 
             return ResponseEntity.ok(dados.login());
