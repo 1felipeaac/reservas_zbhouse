@@ -1,6 +1,7 @@
 package br.com.zbhousereservas.dto;
 
 import br.com.zbhousereservas.entities.Reserva;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
@@ -10,9 +11,9 @@ public record ReservaDTO(
         String nome,
         String documento,
         Double valor_reserva,
-        LocalDateTime checkin,
-        LocalDateTime checkout) {
-    public ReservaDTO(@NotNull Reserva reserva){
+        @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm") LocalDateTime checkin,
+        @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm") LocalDateTime checkout) {
+    public ReservaDTO(@NotNull Reserva reserva) {
         this(reserva.getId(), reserva.getNome(), reserva.getDocumento(), reserva.getValor_reserva(), reserva.getCheckin(), reserva.getCheckout());
     }
 }

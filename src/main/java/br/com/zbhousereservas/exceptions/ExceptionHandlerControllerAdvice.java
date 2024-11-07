@@ -39,6 +39,9 @@ public class ExceptionHandlerControllerAdvice {
     public ResponseEntity<ErrorMessageDTO> handlerHttpMessageNotReadableException(HttpMessageNotReadableException e) {
 
         try {
+            System.out.println(e.getMessage());
+            System.out.println(e.getHttpInputMessage());
+            System.out.println(e.getLocalizedMessage());
 
             ErrorMessageDTO errorDto = new ErrorMessageDTO(null, "Falta informação no formulário!");
 
