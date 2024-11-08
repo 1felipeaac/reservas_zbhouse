@@ -51,13 +51,13 @@ public class PagamentosService {
         Pagamento pagamentoDaReserva = buscaPagamentoPorReservaDistinct(reservaId);
 
         double valorAReceber = pagamentoDaReserva.getValor_pagamento() + valor;
+        validarObjetos.validarPagamento(valorAReceber, reservaId, data);
         pagParcela = new Pagamento();
         pagParcela.setParcela(pagamentoDaReserva.getParcela() + 1);
         pagParcela.setReservaId(reservaId);
         pagParcela.setData_pagamento(data);
         pagParcela.setValor_pagamento(valor);
 
-        validarObjetos.validarPagamento(valorAReceber, reservaId);
         try {
             return this.pagamentosRepository.save(pagParcela);
         } catch (Exception e) {

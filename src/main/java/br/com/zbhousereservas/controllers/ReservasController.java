@@ -55,7 +55,7 @@ public class ReservasController {
 
 
     @GetMapping("/todos")
-    public ResponseEntity<Object> listarTodasReservas(/*@PageableDefault(size = 4, sort = {"checkin"}) */Pageable pageable, @RequestParam(required = false) List<String> sort) {
+    public ResponseEntity<Object> listarTodasReservas(@PageableDefault(sort = {"checkin"}) Pageable pageable, @RequestParam(required = false) List<String> sort) {
         try {
 
             ListarReservaResponse response = this.reservaService.listarReservaResponse(pageable);
@@ -71,7 +71,7 @@ public class ReservasController {
     public ResponseEntity<Object> datasDisponiveis(){
         try {
             var result = this.reservaService.listarDatasDisponiveis();
-            return ResponseEntity.ok().body(result);
+            return ResponseEntity.ok().body(new DatasDisponiveis(result));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

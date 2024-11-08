@@ -1,10 +1,7 @@
 package br.com.zbhousereservas.validations;
 
 import br.com.zbhousereservas.entities.Reserva;
-import br.com.zbhousereservas.exceptions.CheuckoutMenorQueCheckinException;
-import br.com.zbhousereservas.exceptions.PrimeiraParcelaMaiorQueCheckinException;
-import br.com.zbhousereservas.exceptions.ReservaExistenteException;
-import br.com.zbhousereservas.exceptions.ValorParcelaException;
+import br.com.zbhousereservas.exceptions.*;
 import br.com.zbhousereservas.repositories.ReservaRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +16,7 @@ public class ValidarObjetos {
     @Autowired
     private ReservaRepository reservaRepository;
 
-    public void validarPagamento(double valorAReceber, Long reservaId){
+    public void validarPagamento(double valorAReceber, Long reservaId, LocalDateTime data){
         Reserva reserva = reservaRepository.findById(reservaId).orElseThrow();
 
 
@@ -27,11 +24,16 @@ public class ValidarObjetos {
             throw new ValorParcelaException("Número máximo de parcelas permitidas é 2");
         }
 
+        if(data == null){
+            throw new DataPagamentoNuloException();
+        }
+
         if (valorAReceber < reserva.getValor_reserva()) {
             double diferenca = reserva.getValor_reserva() - reserva.getPagamentos().getFirst().getValor_pagamento();
             var message = "Valor insuficiente ! Restam R$" +diferenca + " para finalizar o pagamento da reserva.";
             throw new  ValorParcelaException(message);
         }
+
         if (valorAReceber > reserva.getValor_reserva()) {
             throw new ValorParcelaException("Valor pago ultrapassa o valor total da reserva!");
         }
@@ -55,6 +57,10 @@ public class ValidarObjetos {
     }
     
     public void validarReserva(@NotNull Reserva reserva){
+        if(reserva.getPagamentos().getFirst().getData_pagamento() == null){
+            throw new DataPagamentoNuloException();
+        }
+
         if (reserva.getCheckin().isAfter(reserva.getCheckout())) {
             throw new CheuckoutMenorQueCheckinException();
         }
