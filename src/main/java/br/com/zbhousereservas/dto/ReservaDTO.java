@@ -12,7 +12,9 @@ public record ReservaDTO(
         String documento,
         Double valor_reserva,
         @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm") LocalDateTime checkin,
-        @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm") LocalDateTime checkout) {
+        @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm") LocalDateTime checkout)
+
+{
     public ReservaDTO(@NotNull Reserva reserva) {
         this(reserva.getId(), reserva.getNome(), reserva.getDocumento(), reserva.getValor_reserva(), reserva.getCheckin(), reserva.getCheckout());
     }

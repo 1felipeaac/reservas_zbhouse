@@ -27,11 +27,11 @@ public class Reserva {
     private String documento;
     private Double valor_reserva;
     @NotNull(message = "A data de entrada deve ser informada")
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+//    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm")
 //    @Future
     private LocalDateTime checkin;
     @NotNull(message = "A data de saída deve ser informada")
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+//    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm")
 //    @Future
     private LocalDateTime checkout;
     @OneToMany(cascade = CascadeType.ALL)

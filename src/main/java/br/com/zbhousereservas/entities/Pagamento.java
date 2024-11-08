@@ -21,7 +21,7 @@ public class Pagamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int parcela;
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+//    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm")
     @NotNull(message = "Data de pagamento deve ser informada")
     private LocalDateTime data_pagamento;
     @NotNull(message = "Valor do pagamento deve ser informado")

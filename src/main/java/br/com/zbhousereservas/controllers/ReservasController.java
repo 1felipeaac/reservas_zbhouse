@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,7 @@ public class ReservasController {
 
 
     @GetMapping("/todos")
-    public ResponseEntity<Object> listarTodasReservas(Pageable pageable, @RequestParam(required = false) List<String> sort) {
+    public ResponseEntity<Object> listarTodasReservas(/*@PageableDefault(size = 4, sort = {"checkin"}) */Pageable pageable, @RequestParam(required = false) List<String> sort) {
         try {
 
             ListarReservaResponse response = this.reservaService.listarReservaResponse(pageable);
