@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public class Pagamento {
     private int parcela;
 //    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm")
     @NotNull(message = "Data de pagamento deve ser informada")
-    private LocalDateTime data_pagamento;
+    private LocalDate data_pagamento;
     @NotNull(message = "Valor do pagamento deve ser informado")
     private Double valor_pagamento;
     private Long reservaId;

@@ -4,6 +4,7 @@ import br.com.zbhousereservas.entities.Reserva;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record ReservaDTO(
@@ -11,8 +12,8 @@ public record ReservaDTO(
         String nome,
         String documento,
         Double valor_reserva,
-        @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm") LocalDateTime checkin,
-        @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm") LocalDateTime checkout)
+        @JsonFormat(pattern = "yyyy-MM-dd") LocalDate checkin,
+        @JsonFormat(pattern = "yyyy-MM-dd") LocalDate checkout)
 
 {
     public ReservaDTO(@NotNull Reserva reserva) {

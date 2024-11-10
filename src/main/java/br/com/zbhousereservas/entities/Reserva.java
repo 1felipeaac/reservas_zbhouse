@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,11 +30,11 @@ public class Reserva {
     @NotNull(message = "A data de entrada deve ser informada")
 //    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm")
 //    @Future
-    private LocalDateTime checkin;
+    private LocalDate checkin;
     @NotNull(message = "A data de saída deve ser informada")
 //    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm")
 //    @Future
-    private LocalDateTime checkout;
+    private LocalDate checkout;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "reservaId")
     @NotNull(message = "Necessário pagar ao menos uma parcela para realizar a reserva")

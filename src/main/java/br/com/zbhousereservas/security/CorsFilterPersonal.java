@@ -17,7 +17,7 @@ public class CorsFilterPersonal extends OncePerRequestFilter {
         String origin = request.getHeader("Origin");
 
         // Verificando se a origem da solicitação é http://localhost:5173
-        if ("http://localhost:5173".equals(origin)) {
+        if ("http://localhost:5173".equals(origin) || "https://zbhouse-reservas.netlify.app".equals(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             response.setHeader("Access-Control-Allow-Headers", "authorization, content-type, xsrf-token");

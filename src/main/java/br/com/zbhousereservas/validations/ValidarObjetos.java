@@ -7,7 +7,9 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 @Component
@@ -16,7 +18,7 @@ public class ValidarObjetos {
     @Autowired
     private ReservaRepository reservaRepository;
 
-    public void validarPagamento(double valorAReceber, Long reservaId, LocalDateTime data){
+    public void validarPagamento(double valorAReceber, Long reservaId, LocalDate data){
         Reserva reserva = reservaRepository.findById(reservaId).orElseThrow();
 
 
@@ -74,10 +76,10 @@ public class ValidarObjetos {
         }
     }
 
-    public boolean validarDatas(LocalDateTime checkin, LocalDateTime checkout) {
+    public boolean validarDatas(LocalDate checkin, LocalDate checkout) {
         boolean novaReserva = true;
 
-        for (LocalDateTime dia : intervaloCheckinChekout(checkin, checkout)) {
+        for (LocalDate dia : intervaloCheckinChekout(checkin, checkout)) {
 
             boolean checkinExiste = this.reservaRepository.findByCheckin(dia).isPresent();
             boolean checkoutExiste = this.reservaRepository.findByCheckout(dia).isPresent();
@@ -90,10 +92,18 @@ public class ValidarObjetos {
         return novaReserva;
     }
 
-    public @NotNull ArrayList<LocalDateTime> intervaloCheckinChekout(LocalDateTime checkin, LocalDateTime checkout) {
-        ArrayList<LocalDateTime> datas = new ArrayList<>();
+    public @NotNull ArrayList<LocalDate> intervaloCheckinChekout(LocalDate checkin, LocalDate checkout) {
+        ArrayList<LocalDate> datas = new ArrayList<>();
 
-        LocalDateTime dataAtual = checkin;
+        LocalDate dataAtual = checkin;
+
+//        LocalDate inicio = checkin.toLocalDate();
+//        LocalDate fim = checkout.toLocalDate();
+//
+//        while (!inicio.isAfter(fim)){
+//            datas.add(checkin);
+//            inicio = inicio.plusDays(1);
+//        }
 
         while (!dataAtual.isAfter(checkout)) {
             datas.add(dataAtual);

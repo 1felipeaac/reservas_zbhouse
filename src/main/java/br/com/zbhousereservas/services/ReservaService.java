@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,18 +37,18 @@ public class ReservaService {
     @Value("${diaria.reserva.zbhouse}")
     private double diaria;
 
-    public List<LocalDateTime> listarDatasDisponiveis() {
-        List<LocalDateTime> datasDisponiveis = new ArrayList<>();
-        Set<LocalDateTime> datasReservadas = new HashSet<>();
+    public List<LocalDate> listarDatasDisponiveis() {
+        List<LocalDate> datasDisponiveis = new ArrayList<>();
+        Set<LocalDate> datasReservadas = new HashSet<>();
         this.reservaRepository.findAll().forEach(reserva -> {
-            for (LocalDateTime dia : validarObjetos.intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout())) {
-                datasReservadas.add(dia.toLocalDate().atStartOfDay());
+            for (LocalDate dia : validarObjetos.intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout())) {
+                datasReservadas.add(LocalDate.from(dia.atStartOfDay()));
             }
         });
 
-        LocalDateTime hoje = LocalDateTime.now();
+        LocalDate hoje = LocalDate.now();
 
-        for (LocalDateTime dia = hoje.toLocalDate().atStartOfDay(); dia.getYear() == hoje.getYear(); dia = dia.plusDays(1)) {
+        for (LocalDate dia = LocalDate.from(hoje.atStartOfDay()); dia.getYear() == hoje.getYear(); dia = dia.plusDays(1)) {
             if (!datasReservadas.contains(dia)) {
                 datasDisponiveis.add(dia);
             }
