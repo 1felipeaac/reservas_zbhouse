@@ -55,7 +55,7 @@ public class ReservasController {
 
 
     @GetMapping("/todos")
-    public ResponseEntity<Object> listarTodasReservas(@PageableDefault(sort = {"checkin"}) Pageable pageable, @RequestParam(required = false) List<String> sort) {
+    public ResponseEntity<Object> listarTodasReservas(@PageableDefault(value = 6, sort = {"checkin"}) Pageable pageable, @RequestParam(required = false) List<String> sort) {
         try {
 
             ListarReservaResponse response = this.reservaService.listarReservaResponse(pageable);

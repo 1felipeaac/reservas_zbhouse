@@ -1,5 +1,6 @@
 package br.com.zbhousereservas.security;
 
+import br.com.zbhousereservas.utils.Origins;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,8 +17,10 @@ public class CorsFilterPersonal extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String origin = request.getHeader("Origin");
 
+        Origins origins = new Origins();
+
         // Verificando se a origem da solicitação é http://localhost:5173
-        if ("http://localhost:5173".equals(origin) || "https://zbhouse-reservas.netlify.app".equals(origin)) {
+        if (origins.getOrigins().contains(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             response.setHeader("Access-Control-Allow-Headers", "authorization, content-type, xsrf-token");
