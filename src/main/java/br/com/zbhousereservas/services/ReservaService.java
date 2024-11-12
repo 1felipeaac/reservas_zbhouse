@@ -96,4 +96,18 @@ public class ReservaService {
         return response;
     }
 
+    public List<Reserva> buscarPorNome(String nome) {
+        List<Reserva> reservas;
+
+        reservas = this.reservaRepository.findAllByNomeIgnoreCase(nome);
+
+        if (!reservas.isEmpty()){
+            return reservas;
+        }
+        throw new ReservaNaoExistenteException();
+    }
+
+    public void excluirReserva(Long id) {
+        this.reservaRepository.deleteById(id);
+    }
 }

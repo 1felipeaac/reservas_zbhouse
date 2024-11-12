@@ -66,12 +66,34 @@ public class ReservasController {
         }
     }
 
+    @GetMapping("/busca/{nome}")
+    public ResponseEntity<Object> buscaPorNome(@PathVariable String nome){
+        try{
+            var result = this.reservaService.buscarPorNome(nome);
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/datas")
     public ResponseEntity<Object> datasDisponiveis(){
         try {
             var result = this.reservaService.listarDatasDisponiveis();
             return ResponseEntity.ok().body(new DatasDisponiveis(result));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deletarReserva(@PathVariable Long id){
+        try {
+            this.reservaService.excluirReserva(id);
+            var reserva = this.reservaService.listarReservaPorId(id);
+            return ResponseEntity.ok().body("Reserva de excluída!");
+
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
