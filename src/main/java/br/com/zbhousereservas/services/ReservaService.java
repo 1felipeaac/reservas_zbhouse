@@ -107,7 +107,13 @@ public class ReservaService {
         throw new ReservaNaoExistenteException();
     }
 
-    public void excluirReserva(Long id) {
-        this.reservaRepository.deleteById(id);
+    public String excluirReserva(Long id) {
+        try {
+            Reserva reserva = listarReservaPorId(id);
+            this.reservaRepository.deleteById(id);
+            return reserva.getNome();
+        }catch (Exception e){
+            throw new RuntimeException("Não foi possível excluir a reserva");
+        }
     }
 }

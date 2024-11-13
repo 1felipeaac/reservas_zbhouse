@@ -90,9 +90,8 @@ public class ReservasController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deletarReserva(@PathVariable Long id){
         try {
-            this.reservaService.excluirReserva(id);
-            var reserva = this.reservaService.listarReservaPorId(id);
-            return ResponseEntity.ok().body("Reserva de excluída!");
+            String nome = this.reservaService.excluirReserva(id);
+            return ResponseEntity.ok().body("Reserva de " + nome + "Excluida com sucesso");
 
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
