@@ -69,7 +69,12 @@ public class PagamentosService {
 
     public Double somaRecebidos() {
         List<Double> pagamentos = new ArrayList<>();
-        this.pagamentosRepository.findAll().forEach(pagamento -> pagamentos.add(pagamento.getValor_pagamento()));
+        this.pagamentosRepository.findAll().forEach(pagamento -> {
+            Reserva reserva = reservaService.listarReservaPorId(pagamento.getReservaId());
+            if (reserva.isAtivo()) {
+                pagamentos.add(pagamento.getValor_pagamento());
+            }
+        });
         return pagamentos.stream()
                 .mapToDouble(java.lang.Double::doubleValue)
                 .sum();
@@ -81,10 +86,13 @@ public class PagamentosService {
         this.pagamentosRepository.findAll().forEach(pagamento -> {
             Reserva reserva = reservaService.listarReservaPorId(pagamento.getReservaId());
 
-            if (reserva.getPagamentos().toArray().length < 2) {
-                double diferenca = reserva.getValor_reserva() - pagamento.getValor_pagamento();
-                aReceber.add(diferenca);
+            if (reserva.isAtivo()) {
+                if (reserva.getPagamentos().toArray().length < 2) {
+                    double diferenca = reserva.getValor_reserva() - pagamento.getValor_pagamento();
+                    aReceber.add(diferenca);
+                }
             }
+
         });
 
         return aReceber.stream()

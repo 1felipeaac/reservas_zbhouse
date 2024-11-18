@@ -15,7 +15,8 @@ public record ListarReservaDTO (Long id, String nome,
                                 @JsonFormat(pattern = "yyyy-MM-dd") LocalDate checkout,
                                 Double valor_reserva,
                                 int desconto,
-                                List<Parcelas> pagamentos){
+                                List<Parcelas> pagamentos,
+                                boolean ativo){
 
 
     public ListarReservaDTO(@NotNull Reserva reserva){
@@ -26,7 +27,8 @@ public record ListarReservaDTO (Long id, String nome,
                 reserva.getCheckout(),
                 reserva.getValor_reserva(),
                 (int)reserva.getDesconto(),
-                reserva.getPagamentos().stream().map(Parcelas::new).toList());
+                reserva.getPagamentos().stream().map(Parcelas::new).toList(),
+                reserva.isAtivo());
     }
 
 

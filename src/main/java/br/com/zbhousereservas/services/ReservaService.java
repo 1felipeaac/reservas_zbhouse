@@ -42,7 +42,9 @@ public class ReservaService {
         Set<LocalDate> datasReservadas = new HashSet<>();
         this.reservaRepository.findAll().forEach(reserva -> {
             for (LocalDate dia : validarObjetos.intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout())) {
-                datasReservadas.add(LocalDate.from(dia.atStartOfDay()));
+                if (reserva.isAtivo()) {
+                    datasReservadas.add(LocalDate.from(dia.atStartOfDay()));
+                }
             }
         });
 
@@ -56,6 +58,7 @@ public class ReservaService {
 
         return datasDisponiveis;
     }
+
     public void valorReserva(@NotNull Reserva reserva) {
         int dias = validarObjetos.intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout()).size();
         double valorReserva = dias * diaria * (1 - reserva.getDesconto() / 100);
@@ -70,6 +73,7 @@ public class ReservaService {
 
         try {
             valorReserva(reserva);
+            reserva.setAtivo(true);
             this.reservaRepository.save(reserva);
             return new ReservaDTO(reserva);
         } catch (DataAccessException e) {
@@ -82,7 +86,7 @@ public class ReservaService {
     }
 
     public Page<ListarReservaDTO> listarTodasReservas(Pageable pageable) {
-        return this.reservaRepository.findAll(pageable).map(ListarReservaDTO::new);
+        return this.reservaRepository.findAllByAtivoTrue(pageable).map(ListarReservaDTO::new);
     }
 
     public ListarReservaResponse listarReservaResponse(Pageable pageable) {
@@ -101,7 +105,7 @@ public class ReservaService {
 
         reservas = this.reservaRepository.findAllByNomeIgnoreCase(nome);
 
-        if (!reservas.isEmpty()){
+        if (!reservas.isEmpty()) {
             return reservas;
         }
         throw new ReservaNaoExistenteException();
@@ -110,9 +114,11 @@ public class ReservaService {
     public String excluirReserva(Long id) {
         try {
             Reserva reserva = listarReservaPorId(id);
-            this.reservaRepository.deleteById(id);
+            reserva.setAtivo(false);
+            this.reservaRepository.save(reserva);
+//            this.reservaRepository.deleteById(id);
             return reserva.getNome();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Não foi possível excluir a reserva");
         }
     }

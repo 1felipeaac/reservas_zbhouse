@@ -45,5 +45,5 @@ public class Reserva {
     @Min(value = 0, message = "O desconto deve ser no mínimo 0")
     @Max(value = 100, message = "O desconto deve ser no máximo 100")
     private double desconto;
-
+    private boolean ativo;
 }

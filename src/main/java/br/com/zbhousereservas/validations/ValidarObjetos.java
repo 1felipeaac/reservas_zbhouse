@@ -18,7 +18,7 @@ public class ValidarObjetos {
     @Autowired
     private ReservaRepository reservaRepository;
 
-    public void validarPagamento(double valorAReceber, Long reservaId, LocalDate data){
+    public void validarPagamento(double valorAReceber, Long reservaId, LocalDate data) {
         Reserva reserva = reservaRepository.findById(reservaId).orElseThrow();
 
 
@@ -26,14 +26,14 @@ public class ValidarObjetos {
             throw new ValorParcelaException("Número máximo de parcelas permitidas é 2");
         }
 
-        if(data == null){
+        if (data == null) {
             throw new DataPagamentoNuloException();
         }
 
         if (valorAReceber < reserva.getValor_reserva()) {
             double diferenca = reserva.getValor_reserva() - reserva.getPagamentos().getFirst().getValor_pagamento();
-            var message = "Valor insuficiente ! Restam R$" +diferenca + " para finalizar o pagamento da reserva.";
-            throw new  ValorParcelaException(message);
+            var message = "Valor insuficiente ! Restam R$" + diferenca + " para finalizar o pagamento da reserva.";
+            throw new ValorParcelaException(message);
         }
 
         if (valorAReceber > reserva.getValor_reserva()) {
@@ -41,7 +41,7 @@ public class ValidarObjetos {
         }
     }
 
-    public static void validarPrimeiroPagamento(@NotNull Reserva reserva){
+    public static void validarPrimeiroPagamento(@NotNull Reserva reserva) {
         Double valorPagamento = reserva.getPagamentos().getFirst().getValor_pagamento();
         if (reserva.getPagamentos().getFirst().getData_pagamento().isAfter(reserva.getCheckin())) {
             throw new PrimeiraParcelaMaiorQueCheckinException();
@@ -51,15 +51,15 @@ public class ValidarObjetos {
             throw new ValorParcelaException("Valor da parcela não pode ser menor que 0 ou nulo!");
         }
     }
-    
-    public static void validarValorParcela(double valorReserva, double valor_pagamento){
+
+    public static void validarValorParcela(double valorReserva, double valor_pagamento) {
         if (valorReserva < valor_pagamento) {
             throw new ValorParcelaException("Valor da Parcela está superior ao valor da reserva");
         }
     }
-    
-    public void validarReserva(@NotNull Reserva reserva){
-        if(reserva.getPagamentos().getFirst().getData_pagamento() == null){
+
+    public void validarReserva(@NotNull Reserva reserva) {
+        if (reserva.getPagamentos().getFirst().getData_pagamento() == null) {
             throw new DataPagamentoNuloException();
         }
 
@@ -67,9 +67,13 @@ public class ValidarObjetos {
             throw new CheuckoutMenorQueCheckinException();
         }
 
-        if (!validarDatas(reserva.getCheckin(), reserva.getCheckout())) {
+        if (!validarDatasDaReserva(reserva)) {
             throw new ReservaExistenteException();
         }
+
+//        if (!validarDatas(reserva.getCheckin(), reserva.getCheckout())) {
+//            throw new ReservaExistenteException();
+//        }
 
         if (!validarPrimeiraParcela(reserva)) {
             throw new PrimeiraParcelaMaiorQueCheckinException();
@@ -89,6 +93,28 @@ public class ValidarObjetos {
             }
 
         }
+        return novaReserva;
+    }
+
+    public boolean validarDatasDaReserva(Reserva reserva) {
+        boolean novaReserva = true;
+
+
+        for (LocalDate dia : intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout())) {
+            var usuarioCheckin = this.reservaRepository.findAllByCheckin(dia).stream().filter(Reserva::isAtivo);
+            var usuarioCheckout = this.reservaRepository.findAllByCheckout(dia).stream().filter(Reserva::isAtivo);
+
+            boolean checkinExiste = usuarioCheckin.anyMatch(usuario -> true);
+            boolean checkoutExiste = usuarioCheckout.anyMatch(usuario -> true);
+
+
+            if ((checkinExiste) || checkoutExiste) {
+                throw new ReservaExistenteException();
+            }
+
+        }
+
+
         return novaReserva;
     }
 
