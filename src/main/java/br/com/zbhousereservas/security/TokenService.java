@@ -20,7 +20,7 @@ import java.util.Date;
 @Service
 public class TokenService {
 
-    @Value("${JWT_SECRET}")
+    @Value("${api.security.token.secret}")
     private String secret;
 
     public String gerarToken(@NotNull Usuario usuario){
