@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN mvn clean install
+RUN /bin/sh -c "mvn clean install"
 
 FROM openjdk:11-jdk-slim
 
