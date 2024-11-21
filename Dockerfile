@@ -1,14 +1,14 @@
 FROM ubuntu:latest AS build
 
-RUN apt-get update && apt-get install -y openjdk-11-jdk maven
+RUN apt-get update && apt-get install -y openjdk-21-jdk maven
 
 WORKDIR /app
 
 COPY . .
 
-RUN /bin/sh -c "mvn clean install"
+RUN /bin/sh -c "mvn clean install -Dmaven.compiler.release=21"
 
-FROM openjdk:11-jdk-slim
+FROM openjdk:21-jdk-slim
 
 EXPOSE 8080
 
