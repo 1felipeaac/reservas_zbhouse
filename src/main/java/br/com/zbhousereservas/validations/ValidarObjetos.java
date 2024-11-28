@@ -31,7 +31,7 @@ public class ValidarObjetos {
         }
 
         if (valorAReceber < reserva.getValor_reserva()) {
-            double diferenca = reserva.getValor_reserva() - reserva.getPagamentos().getFirst().getValor_pagamento();
+            double diferenca = reserva.getValor_reserva() - reserva.getPagamentos().get(0).getValor_pagamento();
             var message = "Valor insuficiente ! Restam R$" + diferenca + " para finalizar o pagamento da reserva.";
             throw new ValorParcelaException(message);
         }
@@ -42,8 +42,8 @@ public class ValidarObjetos {
     }
 
     public static void validarPrimeiroPagamento(@NotNull Reserva reserva) {
-        Double valorPagamento = reserva.getPagamentos().getFirst().getValor_pagamento();
-        if (reserva.getPagamentos().getFirst().getData_pagamento().isAfter(reserva.getCheckin())) {
+        Double valorPagamento = reserva.getPagamentos().get(0).getValor_pagamento();
+        if (reserva.getPagamentos().get(0).getData_pagamento().isAfter(reserva.getCheckin())) {
             throw new PrimeiraParcelaMaiorQueCheckinException();
         }
 
@@ -59,7 +59,7 @@ public class ValidarObjetos {
     }
 
     public void validarReserva(@NotNull Reserva reserva) {
-        if (reserva.getPagamentos().getFirst().getData_pagamento() == null) {
+        if (reserva.getPagamentos().get(0).getData_pagamento() == null) {
             throw new DataPagamentoNuloException();
         }
 
@@ -144,7 +144,7 @@ public class ValidarObjetos {
 
         validarPrimeiroPagamento(reserva);
 
-        reserva.getPagamentos().getFirst().setParcela(1);
+        reserva.getPagamentos().get(0).setParcela(1);
         return primeiraParcela;
     }
 }

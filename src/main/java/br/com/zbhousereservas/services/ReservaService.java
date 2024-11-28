@@ -62,7 +62,7 @@ public class ReservaService {
     public void valorReserva(@NotNull Reserva reserva) {
         int dias = validarObjetos.intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout()).size();
         double valorReserva = dias * diaria * (1 - reserva.getDesconto() / 100);
-        double valorParcela = reserva.getPagamentos().getFirst().getValor_pagamento();
+        double valorParcela = reserva.getPagamentos().get(0).getValor_pagamento();
         ValidarObjetos.validarValorParcela(valorReserva, valorParcela);
         reserva.setValor_reserva(valorReserva);
     }
