@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,8 @@ public class AutenticacaoController {
     private TokenService tokenService;
     @Autowired
     private AutenticacaoService autenticacaoService;
+    @Value("${api.security.cookie.domain}")
+    private String cookieDomain;
 
     @PostMapping
     public ResponseEntity efetuarLogin(@RequestBody @Valid @NotNull DadosAutenticacao dados, HttpServletResponse response){
@@ -35,7 +38,7 @@ public class AutenticacaoController {
 
             var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
 
-            String cookieValue = "token=" + tokenJWT + "; HttpOnly; Secure; SameSite=None; Domain=localhost; Path=/; Max-Age=" + (24 * 60 * 60);
+            String cookieValue = "token=" + tokenJWT + "; HttpOnly; Secure; SameSite=None; Domain="+cookieDomain+"; Path=/; Max-Age=" + (24 * 60 * 60);
             response.addHeader("Set-Cookie", cookieValue);
 
             return ResponseEntity.ok(new UsuarioAutenticado(dados.login()));
