@@ -16,7 +16,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     Optional<Reserva> findByCheckin(LocalDate checkin);
     Optional<Reserva> findByCheckout(LocalDate checkout);
-    List<Reserva> findAllByNomeIgnoreCase(String nome);
+    List<Reserva> findAllByNomeContainingIgnoreCase(String nome);
 
     Page<Reserva> findAllByAtivoTrue(Pageable pageable);
 

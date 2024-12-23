@@ -61,10 +61,15 @@ public class ReservaService {
 
     public void valorReserva(@NotNull Reserva reserva) {
         int dias = validarObjetos.intervaloCheckinChekout(reserva.getCheckin(), reserva.getCheckout()).size();
-        double valorReserva = dias * diaria * (1 - reserva.getDesconto() / 100);
-        double valorParcela = reserva.getPagamentos().get(0).getValor_pagamento();
-        ValidarObjetos.validarValorParcela(valorReserva, valorParcela);
-        reserva.setValor_reserva(valorReserva);
+        double valorReserva;
+        if (reserva.getDiaria() > 0) {
+            valorReserva = dias * reserva.getDiaria() * (1 - reserva.getDesconto() / 100);
+            double valorParcela = reserva.getPagamentos().get(0).getValor_pagamento();
+            ValidarObjetos.validarValorParcela(valorReserva, valorParcela);
+            reserva.setValor_reserva(valorReserva);
+        } else {
+            throw new ValorDiariaException("Valor da diária não pode ser menor que zero");
+        }
     }
 
     public ReservaDTO salvarReserva(@NotNull Reserva reserva) {
@@ -103,7 +108,7 @@ public class ReservaService {
     public List<Reserva> buscarPorNome(String nome) {
         List<Reserva> reservas;
 
-        reservas = this.reservaRepository.findAllByNomeIgnoreCase(nome);
+        reservas = this.reservaRepository.findAllByNomeContainingIgnoreCase(nome);
 
         if (!reservas.isEmpty()) {
             return reservas;

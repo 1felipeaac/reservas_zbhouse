@@ -28,22 +28,24 @@ public class Reserva {
     private String documento;
     private Double valor_reserva;
     @NotNull(message = "A data de entrada deve ser informada")
-//    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm")
-//    @Future
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate checkin;
     @NotNull(message = "A data de saída deve ser informada")
-//    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm")
-//    @Future
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate checkout;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "reservaId")
     @NotNull(message = "Necessário pagar ao menos uma parcela para realizar a reserva")
     private List<Pagamento> pagamentos;
     @CreationTimestamp
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime created_at;
     @NotNull
     @Min(value = 0, message = "O desconto deve ser no mínimo 0")
     @Max(value = 100, message = "O desconto deve ser no máximo 100")
     private double desconto;
     private boolean ativo;
+    @NotNull(message = "Valor da Diária deve ser informado!")
+    @Min(value = 0, message = "Diaria não pode ser menor que zero")
+    private int diaria;
 }
