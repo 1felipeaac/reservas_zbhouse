@@ -7,6 +7,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,9 +41,6 @@ public class ExceptionHandlerControllerAdvice {
     public ResponseEntity<ErrorMessageDTO> handlerHttpMessageNotReadableException(HttpMessageNotReadableException e) {
 
         try {
-            System.out.println(e.getMessage());
-            System.out.println(e.getHttpInputMessage());
-            System.out.println(e.getLocalizedMessage());
 
             ErrorMessageDTO errorDto = new ErrorMessageDTO(null, "Falta informação no formulário!");
 
@@ -49,6 +48,14 @@ public class ExceptionHandlerControllerAdvice {
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessageDTO("Erro ao processar a mensagem JSON", null));
         }
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<ErrorMessageDTO> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException e) {
+        String message = "Erro de autenticação interna: " + e.getMessage(); // Mensagem de erro personalizada
+        ErrorMessageDTO dto = new ErrorMessageDTO("autenticacao", message);
+
+        return new ResponseEntity<>(dto, HttpStatus.UNAUTHORIZED); // Defina o status HTTP apropriado
     }
 
     @ExceptionHandler(TokenJWTValidaitonException.class)

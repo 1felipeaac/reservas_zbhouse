@@ -1,6 +1,7 @@
 package br.com.zbhousereservas.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,12 +19,14 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Usuario implements UserDetails {
+public class Autenticacao implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank(message = "O Login deve ser informado")
     private String login;
+    @NotBlank(message = "A senha deve ser informada")
     private String senha;
 
     @Override

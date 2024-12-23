@@ -1,10 +1,10 @@
 package br.com.zbhousereservas.dto;
 
-import br.com.zbhousereservas.entities.Usuario;
+import br.com.zbhousereservas.entities.Autenticacao;
 
 public record DadosAutenticacao(String login, String senha) {
 
-    public DadosAutenticacao(Usuario usuario){
-        this(usuario.getLogin(), usuario.getSenha());
+    public DadosAutenticacao(Autenticacao autenticacao){
+        this(autenticacao.getLogin(), autenticacao.getSenha());
     }
 }

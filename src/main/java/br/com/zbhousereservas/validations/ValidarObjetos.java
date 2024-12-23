@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 @Component
@@ -71,29 +69,10 @@ public class ValidarObjetos {
             throw new ReservaExistenteException();
         }
 
-//        if (!validarDatas(reserva.getCheckin(), reserva.getCheckout())) {
-//            throw new ReservaExistenteException();
-//        }
 
         if (!validarPrimeiraParcela(reserva)) {
             throw new PrimeiraParcelaMaiorQueCheckinException();
         }
-    }
-
-    public boolean validarDatas(LocalDate checkin, LocalDate checkout) {
-        boolean novaReserva = true;
-
-        for (LocalDate dia : intervaloCheckinChekout(checkin, checkout)) {
-
-            boolean checkinExiste = this.reservaRepository.findByCheckin(dia).isPresent();
-            boolean checkoutExiste = this.reservaRepository.findByCheckout(dia).isPresent();
-
-            if (checkinExiste || checkoutExiste) {
-                throw new ReservaExistenteException();
-            }
-
-        }
-        return novaReserva;
     }
 
     public boolean validarDatasDaReserva(Reserva reserva) {
@@ -122,14 +101,6 @@ public class ValidarObjetos {
         ArrayList<LocalDate> datas = new ArrayList<>();
 
         LocalDate dataAtual = checkin;
-
-//        LocalDate inicio = checkin.toLocalDate();
-//        LocalDate fim = checkout.toLocalDate();
-//
-//        while (!inicio.isAfter(fim)){
-//            datas.add(checkin);
-//            inicio = inicio.plusDays(1);
-//        }
 
         while (!dataAtual.isAfter(checkout)) {
             datas.add(dataAtual);
