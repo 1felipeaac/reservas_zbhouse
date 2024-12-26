@@ -7,6 +7,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+@Slf4j
 @Service
 public class TokenService {
 
@@ -34,6 +36,7 @@ public class TokenService {
             try {
                 var algorithm = Algorithm.HMAC256(secret);
 
+                log.info("Token gerado com sucesso!");
                 return JWT.create()
                         .withIssuer("API zbhousereservas")
                         .withSubject(autenticacao.getLogin())
@@ -41,10 +44,12 @@ public class TokenService {
                         .sign(algorithm);
             } catch (JWTCreationException exception) {
                 // Invalid Signing configuration / Couldn't convert Claims.
+                log.error("Erro ao gerar o token jwt. {}", exception.getMessage());
                 throw new RuntimeException("Erro ao gerar o token jwt", exception);
             }
 
         }else{
+            log.warn("Usuário não encontrado");
             throw new UsernameNotFoundException("Usuário não encontrado");
         }
     }
@@ -61,6 +66,7 @@ public class TokenService {
                     .getSubject();
 
         } catch (JWTVerificationException exception) {
+            log.error("Token JWT inválido ou expirado!");
             throw new TokenJWTValidaitonException("Token JWT inválido ou expirado!");
         }
     }

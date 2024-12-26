@@ -8,6 +8,7 @@ import br.com.zbhousereservas.services.AutenticacaoService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/login")
 public class AutenticacaoController {
@@ -40,20 +42,16 @@ public class AutenticacaoController {
 
             var tokenJWT = tokenService.gerarToken((Autenticacao) authentication.getPrincipal());
 
-//            String cookieValue = "token=" + tokenJWT + "; HttpOnly; Secure; SameSite=None; Domain="+cookieDomain+"; Path=/; Max-Age=" + (24 * 60 * 60);
-
             int maxAgeInSeconds = 24 * 60 * 60;
             Cookie cookieValue = new Cookie("token", tokenJWT);
             cookieValue.setHttpOnly(true);
             cookieValue.setSecure(true);
-//            cookie.setSameSite("None");
             cookieValue.setDomain(cookieDomain); // Defina o domínio correto do seu cookie
             cookieValue.setPath("/");
             cookieValue.setMaxAge(maxAgeInSeconds);
 
-//            response.addHeader("Set-Cookie", cookieValue);
-
             response.addCookie(cookieValue);
+            log.info("Usuario [{}] autenticado. Dominio [{}]. Token [{}]", dados.login(), cookieDomain, tokenJWT);
             return ResponseEntity.ok(new UsuarioAutenticado(dados.login()));
 
 
@@ -62,6 +60,7 @@ public class AutenticacaoController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(message);
         }
         catch (Exception e){
+            log.error(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
