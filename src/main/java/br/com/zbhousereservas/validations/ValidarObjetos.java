@@ -1,5 +1,6 @@
 package br.com.zbhousereservas.validations;
 
+import br.com.zbhousereservas.entities.Pagamento;
 import br.com.zbhousereservas.entities.Reserva;
 import br.com.zbhousereservas.exceptions.*;
 import br.com.zbhousereservas.repositories.ReservaRepository;
@@ -30,13 +31,21 @@ public class ValidarObjetos {
 
         if (valorAReceber < reserva.getValor_reserva()) {
             double diferenca = reserva.getValor_reserva() - reserva.getPagamentos().get(0).getValor_pagamento();
-            var message = "Valor insuficiente ! Restam R$" + diferenca + " para finalizar o pagamento da reserva.";
+            var message = "Valor insuficiente ! Restam R$ " + diferenca + " para finalizar o pagamento da reserva.";
             throw new ValorParcelaException(message);
         }
 
         if (valorAReceber > reserva.getValor_reserva()) {
-            throw new ValorParcelaException("Valor pago ultrapassa o valor total da reserva!");
+            double diferenca = reserva.getValor_reserva() - reserva.getPagamentos().get(0).getValor_pagamento();
+            throw new ValorParcelaException("Valor pago ultrapassa o valor total da reserva! Restam R$ "
+                    + diferenca + " para finalizar o pagamento");
         }
+
+        if(data.isAfter(reserva.getCheckout()) || data.isBefore(reserva.getCheckin())){
+            throw new DataPagamentoSegundaParcelaException();
+        }
+
+
     }
 
     public static void validarPrimeiroPagamento(@NotNull Reserva reserva) {
@@ -50,10 +59,19 @@ public class ValidarObjetos {
         }
     }
 
-    public static void validarValorParcela(double valorReserva, double valor_pagamento) {
-        if (valorReserva < valor_pagamento) {
+    public static boolean validarValorParcela(Reserva reserva) {
+
+
+        double somaParcelas = reserva.getPagamentos()
+                .stream()
+                .mapToDouble(Pagamento::getValor_pagamento)
+                .sum();
+
+        if (reserva.getValor_reserva() < somaParcelas) {
             throw new ValorParcelaException("Valor da Parcela está superior ao valor da reserva");
         }
+
+        return true;
     }
 
     public void validarReserva(@NotNull Reserva reserva) {
@@ -72,6 +90,10 @@ public class ValidarObjetos {
 
         if (!validarPrimeiraParcela(reserva)) {
             throw new PrimeiraParcelaMaiorQueCheckinException();
+        }
+
+        if(!validarValorParcela(reserva)){
+            throw new ValorParcelaException("Valor da Parcela está superior ao valor da reserva");
         }
     }
 

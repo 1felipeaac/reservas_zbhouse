@@ -47,20 +47,10 @@ public class PagamentosService {
 
     public Pagamento inserirPagamento(Long reservaId, double valor, LocalDate data) {
 
-        Pagamento pagParcela;
-
-        Pagamento pagamentoDaReserva = buscaPagamentoPorReservaDistinct(reservaId);
-
-        double valorAReceber = pagamentoDaReserva.getValor_pagamento() + valor;
-        validarObjetos.validarPagamento(valorAReceber, reservaId, data);
-        pagParcela = new Pagamento();
-        pagParcela.setParcela(pagamentoDaReserva.getParcela() + 1);
-        pagParcela.setReservaId(reservaId);
-        pagParcela.setData_pagamento(data);
-        pagParcela.setValor_pagamento(valor);
+        Pagamento segundaParcela = pagarSegundaParcela(reservaId, valor, data);
 
         try {
-            return this.pagamentosRepository.save(pagParcela);
+            return this.pagamentosRepository.save(segundaParcela);
         } catch (Exception e) {
             throw new ErroAoSalvarException();
         }
@@ -70,7 +60,7 @@ public class PagamentosService {
     public Double somaRecebidos() {
         List<Double> pagamentos = new ArrayList<>();
         this.pagamentosRepository.findAll().forEach(pagamento -> {
-            Reserva reserva = reservaService.listarReservaPorId(pagamento.getReservaId());
+            Reserva reserva = reservaService.listarReservaPorId(pagamento.getReserva().getId());
             if (reserva.isAtivo()) {
                 pagamentos.add(pagamento.getValor_pagamento());
             }
@@ -84,7 +74,7 @@ public class PagamentosService {
         List<Double> aReceber = new ArrayList<>();
 
         this.pagamentosRepository.findAll().forEach(pagamento -> {
-            Reserva reserva = reservaService.listarReservaPorId(pagamento.getReservaId());
+            Reserva reserva = reservaService.listarReservaPorId(pagamento.getReserva().getId());
 
             if (reserva.isAtivo()) {
                 if (reserva.getPagamentos().toArray().length < 2) {
@@ -103,6 +93,23 @@ public class PagamentosService {
     public Pagamento buscarPagamento(Long id) {
 
         return this.pagamentosRepository.findById(id).orElseThrow();
+    }
+
+    private Pagamento pagarSegundaParcela(Long reservaId, double valor, LocalDate data){
+
+        Pagamento pagamentoDaReserva = buscaPagamentoPorReservaDistinct(reservaId);
+
+        double valorAReceber = pagamentoDaReserva.getValor_pagamento() + valor;
+
+        validarObjetos.validarPagamento(valorAReceber, reservaId, data);
+        
+        Pagamento segundaParcela = new Pagamento();
+        segundaParcela.setParcela(pagamentoDaReserva.getParcela() + 1);
+        segundaParcela.setReserva(pagamentoDaReserva.getReserva());
+        segundaParcela.setData_pagamento(data);
+        segundaParcela.setValor_pagamento(valor);
+
+        return segundaParcela;
     }
 
 }

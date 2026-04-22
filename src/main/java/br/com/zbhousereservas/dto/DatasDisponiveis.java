@@ -6,5 +6,5 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record DatasDisponiveis(List<LocalDate> datasDisponiveis) {
+public record DatasDisponiveis(@JsonFormat(pattern = "dd/MM/yyyy") List<LocalDate> datasDisponiveis) {
 }

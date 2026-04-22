@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -37,108 +35,79 @@ public class ReservasController {
 
     @PostMapping("/")
     @Transactional
-    public ResponseEntity<Object> criarReserva(@Valid @RequestBody @NotNull Reserva reserva, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<Object> criarReserva(@Valid @RequestBody @NotNull ReservaDTO reserva,
+                                               UriComponentsBuilder uriComponentsBuilder) {
 
-        try {
-            var result = this.reservaService.salvarReserva(reserva);
-            var uri = uriComponentsBuilder.path("reservas/{id}").buildAndExpand(result.id()).toUri();
-            log.info("Reserva de {} criada com sucesso", reserva.getNome());
-            return ResponseEntity.created(uri).body(result);
-        } catch (Exception e) {
-            log.error("Não foi possível criar a reserva {}. {}", reserva.getNome(), e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        var result = this.reservaService.salvarReserva(reserva);
+
+        var uri = uriComponentsBuilder.path("reservas/{id}").buildAndExpand(result.getId()).toUri();
+
+        log.info("Reserva de {} criada com sucesso", result.getNome());
+
+        ReservaResponseDTO response = new ReservaResponseDTO(result);
+
+        return ResponseEntity.created(uri).body(response);
+
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> listarReservaPorId(@PathVariable Long id) {
-        try {
-            var result = this.reservaService.listarReservaPorId(id);
-            log.info("Reserva id {}, nome {} listada", id, result.getNome());
-            return ResponseEntity.ok().body(new ListarReservaDTO(result));
-        } catch (Exception e) {
-            log.error("Não foi possível listar a reserva id {}. {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-
+        var result = this.reservaService.listarReservaPorId(id);
+        log.info("Reserva id {}, nome {} listada", id, result.getNome());
+        return ResponseEntity.ok().body(new ListarReservaDTO(result));
     }
 
 
     @GetMapping("/todos")
     public ResponseEntity<Object> listarTodasReservas(@PageableDefault(value = 6, sort = {"checkin"}) Pageable pageable, @RequestParam(required = false) List<String> sort) {
-        try {
-
-            ListarReservaResponse response = this.reservaService.listarReservaResponse(pageable);
-            log.info("Reservas listadas com sucesso");
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            log.error("Não foi possível listar as reservas. {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        ListarReservaResponse response = this.reservaService.listarReservaResponse(pageable);
+        log.info("Reservas listadas com sucesso");
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/busca/{nome}")
     public ResponseEntity<Object> buscaPorNome(@PathVariable String nome) {
-        try {
-            var result = this.reservaService.buscarPorNome(nome);
-            log.info("Reserva de {} encontrada", nome);
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            log.error("Não foi possível fazer a busca pelo nome {}. {}", nome, e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        var result = this.reservaService.buscarPorNome(nome);
+        log.info("Reserva de {} encontrada", nome);
+        return ResponseEntity.ok().body(result);
     }
 
     @GetMapping("/data/{data}")
     public ResponseEntity<BuscaDataDTO> buscaPorData(@PathVariable String data) {
         String result;
         BuscaDataDTO dto;
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate dataFormatada = LocalDate.parse(data, formatter);
-            String dataExibida = dataFormatada.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            List<LocalDate> datasDisponiveis = this.reservaService.listarDatasDisponiveis();
-            var dataConsulta = datasDisponiveis.contains(dataFormatada);
-            if (dataConsulta) {
-                result = "Data " + dataExibida + " disponível!";
-                dto = new BuscaDataDTO(result, 1);
-                log.info("Data {} disponível!", dataExibida);
-            } else {
-                result = "Data " + dataExibida + " indisponível!";
-                dto = new BuscaDataDTO(result, 0);
-                log.info("Data {} indisponível!", dataExibida);
-            }
-            return ResponseEntity.ok().body(dto);
-        } catch (Exception e) {
-            log.error("Não foi possível fazer a busca pela data {}. {}", data, e.getMessage());
-            return ResponseEntity.badRequest().body(new BuscaDataDTO(e.getMessage(), 400));
+
+        String formatData = data.replace("-", "/");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate dataFormatada = LocalDate.parse(formatData, formatter);
+
+        String dataExibida = dataFormatada.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        List<LocalDate> datasDisponiveis = this.reservaService.listarDatasDisponiveis();
+        var dataConsulta = datasDisponiveis.contains(dataFormatada);
+        if (dataConsulta) {
+            result = "Data " + dataExibida + " disponível!";
+            dto = new BuscaDataDTO(result, 1);
+        } else {
+            result = "Data " + dataExibida + " indisponível!";
+            dto = new BuscaDataDTO(result, 0);
         }
+        return ResponseEntity.ok().body(dto);
     }
 
 
     @GetMapping("/datas")
     public ResponseEntity<Object> datasDisponiveis() {
-        try {
-            var result = this.reservaService.listarDatasDisponiveis();
-            log.info("Datas disponíveis listadas");
-            return ResponseEntity.ok().body(new DatasDisponiveis(result));
-        } catch (Exception e) {
-            log.error("Não foi possível listar as datas disponíveis. {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        var result = this.reservaService.listarDatasDisponiveis();
+        log.info("Datas disponíveis listadas");
+        return ResponseEntity.ok().body(new DatasDisponiveis(result));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deletarReserva(@PathVariable Long id) {
-        try {
-            String nome = this.reservaService.excluirReserva(id);
-            log.info("Reserva de {} excluída com sucesso!", nome);
-            return ResponseEntity.ok().body("Reserva de " + nome + "Excluida com sucesso");
-
-        } catch (Exception e) {
-            log.error("Não foi possível excluir a reserva id {}. {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        String nome = this.reservaService.excluirReserva(id);
+        log.info("Reserva de {} excluída com sucesso!", nome);
+        return ResponseEntity.ok().body("Reserva de " + nome + "Excluida com sucesso");
     }
 
 }

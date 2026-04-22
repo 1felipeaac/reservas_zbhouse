@@ -1,51 +1,67 @@
 package br.com.zbhousereservas.entities;
 
+import br.com.zbhousereservas.dto.ReservaDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+
+
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
-@Entity(name = "reservas")
+@Entity
+@Table(name = "reservas")
 @EqualsAndHashCode(of = "id")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Reserva {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "O nome do responsável deve ser informado")
     private String nome;
-    @NotBlank(message = "O documento de identificação deve ser informado")
     private String documento;
     private Double valor_reserva;
-    @NotNull(message = "A data de entrada deve ser informada")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate checkin;
-    @NotNull(message = "A data de saída deve ser informada")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate checkout;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "reservaId")
-    @NotNull(message = "Necessário pagar ao menos uma parcela para realizar a reserva")
-    private List<Pagamento> pagamentos;
+    @Builder.Default
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pagamento> pagamentos = new ArrayList<>();
     @CreationTimestamp
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime created_at;
-    @NotNull
-    @Min(value = 0, message = "O desconto deve ser no mínimo 0")
-    @Max(value = 100, message = "O desconto deve ser no máximo 100")
     private double desconto;
     private boolean ativo;
-    @NotNull(message = "Valor da Diária deve ser informado!")
-    @Min(value = 0, message = "Diaria não pode ser menor que zero")
     private int diaria;
+
+    public void adicionarPagamento(Pagamento pagamento) {
+        this.pagamentos.add(pagamento);
+        pagamento.setReserva(this);
+    }
+
+    public static @Nullable ReservaBuilder fromEntityReserva(ReservaDTO dto){
+
+        if(Objects.isNull(dto) || Objects.isNull(dto.pagamentos())){
+            return null;
+        }
+
+        return Reserva.builder()
+                .nome(dto.nome())
+                .documento(dto.documento())
+                .checkin(dto.checkin())
+                .checkout(dto.checkout())
+                .diaria(dto.diaria())
+                .desconto(dto.desconto())
+                .ativo(true);
+    }
+
 }

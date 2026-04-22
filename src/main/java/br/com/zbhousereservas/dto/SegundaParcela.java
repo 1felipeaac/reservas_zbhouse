@@ -1,7 +1,11 @@
 package br.com.zbhousereservas.dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
-public record SegundaParcela(double valor, LocalDate data) {
+import java.time.LocalDate;
+
+public record SegundaParcela(
+        double valor,
+        @JsonFormat(pattern = "dd/MM/yyyy")
+        LocalDate data) {
 }

@@ -1,18 +1,14 @@
 package br.com.zbhousereservas.entities;
 
+import br.com.zbhousereservas.dto.PagamentoDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @Entity(name = "pagamentos")
@@ -22,10 +18,18 @@ public class Pagamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int parcela;
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @NotNull(message = "Data de pagamento deve ser informada")
     private LocalDate data_pagamento;
-    @NotNull(message = "Valor do pagamento deve ser informado")
     private Double valor_pagamento;
-    private Long reservaId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reserva_id")
+    private Reserva reserva;
+
+    public Pagamento(){}
+
+    public Pagamento(@NotNull PagamentoDTO dto){
+        this.valor_pagamento = dto.valor_pagamento();
+        this.data_pagamento = dto.data_pagamento();
+        this.parcela = dto.parcela();
+    }
+
 }

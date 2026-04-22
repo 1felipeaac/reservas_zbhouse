@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  db-zbhouse:
+    image: postgres:15-alpine
+    container_name: db_zbhouse_testes
+    environment:
+      - POSTGRES_DB=zbhouse_dev_db
+      - POSTGRES_USER=felipe_dev
+      - POSTGRES_PASSWORD=senha_teste
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_zbhouse:/var/lib/postgresql/data
+
+volumes:
+  pgdata_zbhouse:

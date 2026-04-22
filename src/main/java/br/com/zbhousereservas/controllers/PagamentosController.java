@@ -1,7 +1,7 @@
 package br.com.zbhousereservas.controllers;
 
 import br.com.zbhousereservas.dto.DetalhamentoPagamento;
-import br.com.zbhousereservas.dto.Parcelas;
+import br.com.zbhousereservas.dto.PagamentoDTO;
 import br.com.zbhousereservas.dto.SegundaParcela;
 import br.com.zbhousereservas.dto.ValorDetalhado;
 import br.com.zbhousereservas.services.PagamentosService;
@@ -36,72 +36,44 @@ public class PagamentosController {
     @GetMapping("/reserva/{id}")
     public ResponseEntity<Object> buscarPagamentosPorReserva(@PathVariable Long id) {
 
-        try {
-            var result = this.pagamentosService.buscaPagamentoPorReservaList(id).stream().map(Parcelas::new).toList();
-            log.info("Pagamento da reserva {} encontrado", id);
-            return ResponseEntity.ok().body(result);
-
-        } catch (Exception e) {
-            log.error("Não foi possível buscar o pagamento da reserva {}. {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        var result = this.pagamentosService.buscaPagamentoPorReservaList(id).stream().map(PagamentoDTO::new).toList();
+        log.info("Pagamento da reserva {} encontrado", id);
+        return ResponseEntity.ok().body(result);
 
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> detalharPagamento(@PathVariable Long id) {
 
-        try {
-            var result = this.pagamentosService.buscarPagamento(id);
-            var nome = this.reservaService.listarReservaPorId(result.getReservaId()).getNome();
-            log.info("Pagamentos da reserva {} detalhado", id);
-            return ResponseEntity.ok().body(new DetalhamentoPagamento(new Parcelas(result), nome));
-
-        } catch (Exception e) {
-            log.error("Não foi possível detalhar os pagamentos da reserva {}. {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        var result = this.pagamentosService.buscarPagamento(id);
+        var nome = this.reservaService.listarReservaPorId(result.getReserva().getId()).getNome();
+        log.info("Pagamentos da reserva {} detalhado", id);
+        return ResponseEntity.ok().body(new DetalhamentoPagamento(new PagamentoDTO(result), nome));
 
     }
 
     @PostMapping("/{id}")
     @Transactional
     public ResponseEntity<Object> pagarParcela(@Valid @PathVariable Long id, @RequestBody SegundaParcela segundaParcela, UriComponentsBuilder uriComponentsBuilder) {
-        try {
-            var result = this.pagamentosService.inserirPagamento(id, segundaParcela.valor(), segundaParcela.data());
-            var nome = this.reservaService.listarReservaPorId(result.getReservaId()).getNome();
-            var uri = uriComponentsBuilder.path("pagamentos/{id}").buildAndExpand(result.getReservaId()).toUri();
-//            System.out.println(uri);
-            log.info("Parcela da reserva {} paga", id);
-            return ResponseEntity.created(uri).body(new DetalhamentoPagamento(nome, new Parcelas(result)));
-        } catch (Exception e) {
-            log.error("Não foi possível pagar a parcela da reserva {}. {}", id, e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        var result = this.pagamentosService.inserirPagamento(id, segundaParcela.valor(), segundaParcela.data());
+        long reservaId = result.getReserva().getId();
+        var nome = this.reservaService.listarReservaPorId(reservaId).getNome();
+        var uri = uriComponentsBuilder.path("pagamentos/{id}").buildAndExpand(reservaId).toUri();
+        log.info("Parcela da reserva {} paga", id);
+        return ResponseEntity.created(uri).body(new DetalhamentoPagamento(nome, new PagamentoDTO(result)));
     }
 
     @GetMapping("/recebidos")
     public ResponseEntity<Object> somarRecebidos() {
-        try {
-            Double somaRecebidos = this.pagamentosService.somaRecebidos();
-            log.info("Pagamentos recebidos calculados com sucesso");
-            return ResponseEntity.ok().body(new ValorDetalhado(somaRecebidos));
-
-        } catch (Exception e) {
-            log.error("Não foi possível calcular os valores recebidos. {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Double somaRecebidos = this.pagamentosService.somaRecebidos();
+        log.info("Pagamentos recebidos calculados com sucesso");
+        return ResponseEntity.ok().body(new ValorDetalhado(somaRecebidos));
     }
 
     @GetMapping("/aReceber")
     public ResponseEntity<Object> somarAReceber() {
-        try {
-            double somaAReceber = this.pagamentosService.somaAReceber();
-            log.info("Pagamentos a receber calculados com sucesso");
-            return ResponseEntity.ok().body(new ValorDetalhado(somaAReceber));
-        } catch (Exception e) {
-            log.error("Não foi possível calcular os valores a receber");
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        double somaAReceber = this.pagamentosService.somaAReceber();
+        log.info("Pagamentos a receber calculados com sucesso");
+        return ResponseEntity.ok().body(new ValorDetalhado(somaAReceber));
     }
 }

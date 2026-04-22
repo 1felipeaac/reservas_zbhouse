@@ -1,16 +1,13 @@
 package br.com.zbhousereservas;
 
-import br.com.zbhousereservas.utils.Origins;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Arrays;
-import java.util.List;
 
 @SpringBootApplication
 @EnableWebMvc
@@ -20,7 +17,8 @@ public class ZbhousereservasApplication {
 		SpringApplication.run(ZbhousereservasApplication.class, args);
 	}
 
-	Origins origins = new Origins();
+	@Value("${api.security.cors.origins}")
+	private String[] origensPermitidas;
 
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {
@@ -28,7 +26,7 @@ public class ZbhousereservasApplication {
 			@Override
 			public void addCorsMappings(@NotNull CorsRegistry registry) {
 				registry.addMapping("/**")
-						.allowedOrigins(origins.getOrigins().toArray(new String[0]))
+						.allowedOrigins(origensPermitidas)
 						.allowedMethods("GET", "POST", "PUT", "DELETE")
 						.allowedHeaders("*")
 						.allowCredentials(true);

@@ -5,17 +5,18 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
 public record ListarReservaDTO (Long id, String nome,
                                 String documento,
-                                @JsonFormat(pattern = "yyyy-MM-dd") LocalDate checkin,
-                                @JsonFormat(pattern = "yyyy-MM-dd") LocalDate checkout,
+                                @JsonFormat(pattern = "dd/MM/yyyy")
+                                LocalDate checkin,
+                                @JsonFormat(pattern = "dd/MM/yyyy")
+                                LocalDate checkout,
                                 Double valor_reserva,
                                 int desconto,
-                                List<Parcelas> pagamentos,
+                                List<PagamentoDTO> pagamentos,
                                 boolean ativo){
 
 
@@ -27,7 +28,7 @@ public record ListarReservaDTO (Long id, String nome,
                 reserva.getCheckout(),
                 reserva.getValor_reserva(),
                 (int)reserva.getDesconto(),
-                reserva.getPagamentos().stream().map(Parcelas::new).toList(),
+                reserva.getPagamentos().stream().map(PagamentoDTO::new).toList(),
                 reserva.isAtivo());
     }
 

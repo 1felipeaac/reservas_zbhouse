@@ -1,6 +1,8 @@
 package br.com.zbhousereservas.exceptions;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -25,33 +27,74 @@ public class ExceptionHandlerControllerAdvice {
         this.messageSource = messageSource;
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<ErrorMessageDTO>> handlerMethodArgumentNotValidException(@NotNull MethodArgumentNotValidException e) {
-        List<ErrorMessageDTO> dto = new ArrayList<>();
-        e.getBindingResult().getFieldErrors().forEach(err -> {
+    @ExceptionHandler(ReservaExistenteException.class)
+    public ResponseEntity<String> handleReservaExistenteExceptio(@NotNull ReservaExistenteException e){
 
-            String message = messageSource.getMessage(err, LocaleContextHolder.getLocale());
-            dto.add(new ErrorMessageDTO(err.getField(), message));
-        });
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
 
-        return new ResponseEntity<>(dto, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(PrimeiraParcelaMaiorQueCheckinException.class)
+    public ResponseEntity<String> handlePrimeiraParcelaMaiorQueCheckinException(@NotNull PrimeiraParcelaMaiorQueCheckinException e){
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ValorParcelaException.class)
+    public ResponseEntity<String> handleValorParcelaException(@NotNull ValorParcelaException e){
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
+
+    @ExceptionHandler(CheuckoutMenorQueCheckinException.class)
+    public ResponseEntity<String> handleCheuckoutMenorQueCheckinException(@NotNull CheuckoutMenorQueCheckinException e){
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DataPagamentoSegundaParcelaException.class)
+    public ResponseEntity<String> handleDataPagamentoSegundaParcelaException(@NotNull DataPagamentoSegundaParcelaException e){
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ReservaNaoExistenteException.class)
+    public ResponseEntity<String> handleReservaNaoExistenteException(@NotNull ReservaNaoExistenteException e){
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorMessageDTO> handlerHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+    public ResponseEntity<ErrorMessageDTO> handleHttpMessageNotReadableException(@NotNull HttpMessageNotReadableException e) {
 
-        try {
+        if (e.getCause() instanceof InvalidFormatException invalidFormatException) {
 
-            ErrorMessageDTO errorDto = new ErrorMessageDTO(null, "Falta informação no formulário!");
+            String campo = invalidFormatException.getPath().stream()
+                    .map(JsonMappingException.Reference::getFieldName)
+                    .reduce((first, second) -> second)
+                    .orElse("campo_desconhecido");
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorMessageDTO("Erro ao processar a mensagem JSON", null));
+            String mensagem = String.format("O valor informado para o campo '%s' é de um tipo inválido.", campo);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorMessageDTO(campo, mensagem));
         }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessageDTO(null, "O corpo da requisição possui um formato JSON inválido."));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<List<ErrorMessageDTO>> handleValidationExceptions(@NotNull MethodArgumentNotValidException ex) {
+
+        List<ErrorMessageDTO> erros = ex.getBindingResult().getFieldErrors().stream()
+                .map(erro -> new ErrorMessageDTO(erro.getField(), erro.getDefaultMessage()))
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
     }
 
     @ExceptionHandler(InternalAuthenticationServiceException.class)
-    public ResponseEntity<ErrorMessageDTO> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException e) {
+    public ResponseEntity<ErrorMessageDTO> handleInternalAuthenticationServiceException(@NotNull InternalAuthenticationServiceException e) {
         String message = "Erro de autenticação interna: " + e.getMessage(); // Mensagem de erro personalizada
         ErrorMessageDTO dto = new ErrorMessageDTO("autenticacao", message);
 
@@ -71,7 +114,7 @@ public class ExceptionHandlerControllerAdvice {
     }
 
     @ExceptionHandler(JWTVerificationException.class)
-    public ResponseEntity<ErrorMessageDTO> handleJWTVerificationException(JWTVerificationException e) {
+    public ResponseEntity<ErrorMessageDTO> handleJWTVerificationException(@NotNull JWTVerificationException e) {
         ErrorMessageDTO errorDto = new ErrorMessageDTO(null, e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDto);
     }
