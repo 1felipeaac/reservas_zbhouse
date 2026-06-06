@@ -8,15 +8,19 @@ import java.time.LocalDate;
 
 public record PagamentoDTO(
         int parcela,
+        long reservaId,
         @JsonFormat(pattern = "dd/MM/yyyy")
-        LocalDate data_pagamento,
-        double valor_pagamento) {
+        LocalDate dataPagamento,
+        double valorPagamento) {
 
 
-    public PagamentoDTO(@NotNull Pagamento pagamento) {
+    public PagamentoDTO(@NotNull Pagamento pagamento, long reservaId) {
         this(
                 pagamento.getParcela(),
+                reservaId,
                 pagamento.getData_pagamento(),
                 pagamento.getValor_pagamento());
     }
+
+
 }

@@ -1,7 +1,6 @@
 package br.com.zbhousereservas.entities;
 
 import br.com.zbhousereservas.dto.PagamentoDTO;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,8 +26,8 @@ public class Pagamento {
     public Pagamento(){}
 
     public Pagamento(@NotNull PagamentoDTO dto){
-        this.valor_pagamento = dto.valor_pagamento();
-        this.data_pagamento = dto.data_pagamento();
+        this.valor_pagamento = dto.valorPagamento();
+        this.data_pagamento = dto.dataPagamento();
         this.parcela = dto.parcela();
     }
 

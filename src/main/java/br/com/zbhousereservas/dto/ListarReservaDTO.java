@@ -8,13 +8,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 
-public record ListarReservaDTO (Long id, String nome,
+public record ListarReservaDTO (Long id,
+                                String nome,
                                 String documento,
                                 @JsonFormat(pattern = "dd/MM/yyyy")
                                 LocalDate checkin,
                                 @JsonFormat(pattern = "dd/MM/yyyy")
                                 LocalDate checkout,
-                                Double valor_reserva,
+                                Double valorReserva,
                                 int desconto,
                                 List<PagamentoDTO> pagamentos,
                                 boolean ativo){
@@ -28,7 +29,7 @@ public record ListarReservaDTO (Long id, String nome,
                 reserva.getCheckout(),
                 reserva.getValor_reserva(),
                 (int)reserva.getDesconto(),
-                reserva.getPagamentos().stream().map(PagamentoDTO::new).toList(),
+                reserva.getPagamentos().stream().map(pagamento -> new PagamentoDTO(pagamento, reserva.getId())).toList(),
                 reserva.isAtivo());
     }
 

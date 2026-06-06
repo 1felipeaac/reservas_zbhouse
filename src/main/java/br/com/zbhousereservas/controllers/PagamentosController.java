@@ -36,7 +36,7 @@ public class PagamentosController {
     @GetMapping("/reserva/{id}")
     public ResponseEntity<Object> buscarPagamentosPorReserva(@PathVariable Long id) {
 
-        var result = this.pagamentosService.buscaPagamentoPorReservaList(id).stream().map(PagamentoDTO::new).toList();
+        var result = this.pagamentosService.buscaPagamentoPorReservaList(id).stream().map(pagamento -> new PagamentoDTO(pagamento, id)).toList();
         log.info("Pagamento da reserva {} encontrado", id);
         return ResponseEntity.ok().body(result);
 
@@ -48,7 +48,7 @@ public class PagamentosController {
         var result = this.pagamentosService.buscarPagamento(id);
         var nome = this.reservaService.listarReservaPorId(result.getReserva().getId()).getNome();
         log.info("Pagamentos da reserva {} detalhado", id);
-        return ResponseEntity.ok().body(new DetalhamentoPagamento(new PagamentoDTO(result), nome));
+        return ResponseEntity.ok().body(new DetalhamentoPagamento(new PagamentoDTO(result, id), nome));
 
     }
 
@@ -60,7 +60,7 @@ public class PagamentosController {
         var nome = this.reservaService.listarReservaPorId(reservaId).getNome();
         var uri = uriComponentsBuilder.path("pagamentos/{id}").buildAndExpand(reservaId).toUri();
         log.info("Parcela da reserva {} paga", id);
-        return ResponseEntity.created(uri).body(new DetalhamentoPagamento(nome, new PagamentoDTO(result)));
+        return ResponseEntity.created(uri).body(new DetalhamentoPagamento(nome, new PagamentoDTO(result, reservaId)));
     }
 
     @GetMapping("/recebidos")
